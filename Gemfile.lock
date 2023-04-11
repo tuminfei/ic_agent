@@ -7,7 +7,18 @@ GEM
   remote: https://rubygems.org/
   specs:
     base32 (0.3.4)
+    bitcoin-ruby (0.0.20)
+      eventmachine
+      ffi
+      scrypt
     diff-lcs (1.5.0)
+    ecdsa (1.2.0)
+    ed25519 (1.3.0)
+    eventmachine (1.2.7)
+    ffi (1.15.5)
+    ffi-compiler (1.0.1)
+      ffi (>= 1.0.0)
+      rake
     rake (13.0.6)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
@@ -22,12 +33,17 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.0)
+    scrypt (3.0.7)
+      ffi-compiler (>= 1.0, < 2.0)
 
 PLATFORMS
   arm64-darwin-22
 
 DEPENDENCIES
   base32 (~> 0.3.4)
+  bitcoin-ruby (~> 0.0.20)
+  ecdsa (~> 1.2)
+  ed25519 (~> 1.3)
   ic_agent!
   rake (~> 13.0)
   rspec (~> 3.2)

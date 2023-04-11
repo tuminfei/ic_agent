@@ -35,6 +35,9 @@ Gem::Specification.new do |spec|
   # spec.add_dependency "example-gem", "~> 1.0"
   spec.add_development_dependency "rspec", "~> 3.2"
   spec.add_development_dependency "base32", "~> 0.3.4"
+  spec.add_development_dependency "ecdsa", "~> 1.2"
+  spec.add_development_dependency "bitcoin-ruby", "~> 0.0.20"
+  spec.add_development_dependency "ed25519", "~> 1.3"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

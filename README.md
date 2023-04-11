@@ -44,6 +44,24 @@ p.len # byte array length
 p.to_str() # convert to string
 ```
 
+#### 2. Identity
+
+Create an instance:
+
+```ruby
+require "lib/ic_agent/indentity"
+i = IcAgent::Identity.new # create an identity instance, key is randomly generated
+i1 = IcAgent::Identity.new(privkey = "833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42") # create an instance from private key
+```
+
+Sign a message and Verify:
+
+```ruby
+msg = "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"
+sig = i.sign(msg) # sig = (der_encoded_pubkey, signature)
+ver = i.verify(msg, sig[1])
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
