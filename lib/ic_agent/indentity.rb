@@ -3,6 +3,7 @@ require 'json'
 require 'ecdsa'
 require 'bitcoin/trezor/mnemonic'
 require 'ed25519'
+require 'securerandom'
 
 module IcAgent
   class Identity
@@ -16,13 +17,14 @@ module IcAgent
       end
       @key_type = type
       if type == 'secp256k1'
+        group = ECDSA::Group::Secp256k1
         if privkey.length > 0
-          @sk = ECDSA::Format::IntegerOctetString.decode(privkey)
+          @sk = privkey.to_i
         else
-          @sk = ECDSA::PrivateKey.generate
+          @sk = 1 + SecureRandom.random_number(group.order - 1)
         end
         @privkey = ECDSA::Format::IntegerOctetString.encode(@sk, 32).unpack1('H*')
-        @vk = @sk.public_key
+        @vk = group.generator.multiply_by_scalar(@sk)
         @pubkey = ECDSA::Format::PointOctetString.encode(@vk, compression: true).unpack1('H*')
         @der_pubkey = ECDSA::Format::PointOctetString.encode(@vk, compression: false)
       elsif type == 'ed25519'
@@ -77,5 +79,39 @@ module IcAgent
     end
     
     alias_method :inspect, :to_s
-  end   
+  end
+  
+  class DelegateIdentity
+    attr_reader :identity, :delegations, :der_pubkey
+
+    def initialize(identity, delegation)
+      @identity = identity
+      @delegations = delegation['delegations'].map { |d| d }
+      @der_pubkey = [delegation['publicKey']].pack('H*')
+    end
+    
+    def sign(msg)
+      return @identity.sign(msg)
+    end
+    
+    def sender
+      return Principal.self_authenticating(@der_pubkey)
+    end
+    
+    def self.from_json(ic_identity, ic_delegation)
+      parsed_ic_identity = JSON.parse(ic_identity)
+      parsed_ic_delegation = JSON.parse(ic_delegation)
+      
+      return DelegateIdentity.new(
+        Identity.new(parsed_ic_identity[1][0...64]),
+        parsed_ic_delegation
+      )
+    end
+    
+    def to_s
+      return '(' + @identity.to_s + ",\n" + @delegations.to_s + ")"
+    end
+
+    alias_method :inspect, :to_s
+  end
 end
