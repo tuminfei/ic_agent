@@ -15,6 +15,10 @@ GEM
     ecdsa (1.2.0)
     ed25519 (1.3.0)
     eventmachine (1.2.7)
+    faraday (2.7.4)
+      faraday-net_http (>= 2.0, < 3.1)
+      ruby2_keywords (>= 0.0.4)
+    faraday-net_http (3.0.2)
     ffi (1.15.5)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
@@ -33,6 +37,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
     rspec-support (3.12.0)
+    ruby2_keywords (0.0.5)
     scrypt (3.0.7)
       ffi-compiler (>= 1.0, < 2.0)
 
@@ -44,6 +49,7 @@ DEPENDENCIES
   bitcoin-ruby (~> 0.0.20)
   ecdsa (~> 1.2)
   ed25519 (~> 1.3)
+  faraday (~> 2.7, >= 2.7.4)
   ic_agent!
   rake (~> 13.0)
   rspec (~> 3.2)

@@ -62,6 +62,15 @@ sig = i.sign(msg) # sig = (der_encoded_pubkey, signature)
 ver = i.verify(msg, sig[1])
 ```
 
+#### 3. Client
+
+Create an instance:
+
+```ruby
+client = IcAgent::Client.new(url = "https://ic0.app")
+client.status
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

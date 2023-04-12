@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "ecdsa", "~> 1.2"
   spec.add_development_dependency "bitcoin-ruby", "~> 0.0.20"
   spec.add_development_dependency "ed25519", "~> 1.3"
+  spec.add_development_dependency "faraday", "~> 2.7"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

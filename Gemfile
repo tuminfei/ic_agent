@@ -10,4 +10,5 @@ gem 'base32', '~> 0.3.4'
 gem 'ecdsa', '~> 1.2'
 gem 'bitcoin-ruby', '~> 0.0.20'
 gem 'ed25519', '~> 1.3'
+gem 'faraday', '~> 2.7', '>= 2.7.4'
 
