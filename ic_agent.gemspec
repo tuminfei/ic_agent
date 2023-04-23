@@ -39,6 +39,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bitcoin-ruby", "~> 0.0.20"
   spec.add_development_dependency "ed25519", "~> 1.3"
   spec.add_development_dependency "faraday", "~> 2.7"
+  spec.add_development_dependency "ruby-enum", "~> 0.9.0"
+  spec.add_development_dependency "leb128", "~> 1.0"
+  spec.add_development_dependency "ctf-party", "~> 2.3"
+  spec.add_development_dependency "byebug", "~> 11.1"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

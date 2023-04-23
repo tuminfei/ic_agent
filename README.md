@@ -71,6 +71,26 @@ client = IcAgent::Client.new(url = "https://ic0.app")
 client.status
 ```
 
+#### 4. Candid
+
+Encode parameters:
+
+```ruby
+# params is an array, return value is encoded bytes
+params = [{'type': IcAgent::Candid::BaseTypes.nat, 'value': 10}]
+data = IcAgent::Candid.encode(params)
+
+params = [{'type': IcAgent::Candid::BaseTypes.null, 'value': nil}]
+data = IcAgent::Candid.encode(params)
+```
+
+Decode parameters:
+
+```ruby
+# data is bytes, return value is an parameter array
+params =  IcAgent::Candid.decode(data)
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

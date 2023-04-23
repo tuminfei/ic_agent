@@ -6,7 +6,7 @@ module IcAgent
   HASH_LENGTH_IN_BYTES = 28
   MAX_LENGTH_IN_BYTES = 29
 
-  class PrincipalClass
+  class PrincipalSort
     OpaqueId = 1
     SelfAuthenticating = 2
     DerivedId = 3
@@ -31,7 +31,7 @@ module IcAgent
     def self.self_authenticating(pubkey)
       pubkey = [pubkey].pack('H*') if pubkey.is_a?(String)
       hash_ = OpenSSL::Digest::SHA224.digest(pubkey)
-      hash_ += [PrincipalClass::SelfAuthenticating].pack('C')
+      hash_ += [PrincipalSort::SelfAuthenticating].pack('C')
       Principal.new(bytes: hash_)
     end
 

@@ -11,4 +11,7 @@ gem 'ecdsa', '~> 1.2'
 gem 'bitcoin-ruby', '~> 0.0.20'
 gem 'ed25519', '~> 1.3'
 gem 'faraday', '~> 2.7', '>= 2.7.4'
-
+gem 'ruby-enum', '~> 0.9.0'
+gem 'leb128', '~> 1.0'
+gem 'ctf-party', '~> 2.3'
+gem 'byebug', '~> 11.1', '>= 11.1.3'
