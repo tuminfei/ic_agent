@@ -1318,8 +1318,9 @@ module IcAgent
 			end
 		end
 	
-		def leb128u_decode(pipe)
+		def self.leb128u_decode(pipe)
 			res = ''.b
+			byebug
 			loop do
 				byte = safe_read_byte(pipe)
 				res << byte
@@ -1328,7 +1329,7 @@ module IcAgent
 			LEB128.decode_signed(res)
 		end
 		
-		def leb128i_decode(pipe)
+		def self.leb128i_decode(pipe)
 			length = pipe.buffer.length
 			(0...length).each do |i|
 				if pipe.buffer[i] < "\x80"
@@ -1353,11 +1354,11 @@ module IcAgent
 		end
 
 		def self.leb128_string_hex(p_str)
-			LEB128.encode_signed(p_str).string.to_hex(prefixall: '\\x')
+			LEB128.encode_signed(p_str).string.to_hex
 		end
 
 		def self.unicode_to_hex(u_code)
-			u_code.to_hex(prefixall: '\\x')
+			u_code.to_hex
 		end
 		
 		def self.build_type(raw_table, table, entry)
@@ -1562,7 +1563,7 @@ module IcAgent
 				item.build_type_table(typetable)
 			end
 	
-			pre = PREFIX
+			pre = unicode_to_hex(PREFIX)
 			table = unicode_to_hex(typetable.encode())
 			length = leb128_string_hex(args.length)
 	
@@ -1577,7 +1578,7 @@ module IcAgent
 				unless t.covariant(args[i])
 						raise TypeError, "Invalid #{t.display} argument: #{args[i]}"
 				end
-				vals += t.encode_value(args[i])
+				vals += unicode_to_hex(t.encode_value(args[i]))
 			end
 	
 			return pre + table + length + typs + vals
