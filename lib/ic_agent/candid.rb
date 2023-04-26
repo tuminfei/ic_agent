@@ -238,7 +238,7 @@ module IcAgent
 			end
 			
 			def covariant(x)
-				x.is_a?(Boolean)
+				x.is_a?(TrueClass) || x.is_a?(FalseClass)
 			end
 			
 			def encode_value(val)
