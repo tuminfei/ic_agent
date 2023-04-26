@@ -89,7 +89,7 @@ module IcAgent
 				if !@idx.has_key?(type_name)
 					raise ValueError, "Missing type index for " + type_name
 				end
-				return LEB128.encode_signed(@idx[type_name] | 0)
+				return LEB128.encode_signed(@idx[type_name] | 0).string
 			end
 		end
 	
@@ -166,7 +166,7 @@ module IcAgent
 			end
 			
 			def encode_type(type_table)
-				return type_table.indexOf(self.name)
+				return type_table.index_of(self.name)
 			end
 		end
 	
@@ -661,14 +661,14 @@ module IcAgent
 			end
 	
 			def encode_value(val)
-				length = LEB128.encode_signed(val.length)
+				length = LEB128.encode_signed(val.length).string
 				vec = val.map { |v| @type.encode_value(v) }
 				(length + vec.join).b
 			end
 	
 			def _build_type_table_impl(type_table)
 				@type.build_type_table(type_table)
-				op_code = LEB128.encode_signed(TypeIds::Vec)
+				op_code = LEB128.encode_signed(TypeIds::Vec).string
 				buffer = @type.encode_type(type_table)
 				type_table.add(self, op_code + buffer)
 			end
@@ -1320,7 +1320,6 @@ module IcAgent
 	
 		def self.leb128u_decode(pipe)
 			res = ''.b
-			byebug
 			loop do
 				byte = safe_read_byte(pipe)
 				res << byte

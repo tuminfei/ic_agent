@@ -72,4 +72,16 @@ describe IcAgent::Candid do
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c00017200000040e17a8441")
   end
+
+  it "Vec(int32) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32), 'value': [1, 2, -3]}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016d750100030100000002000000fdffffff")
+  end
+
+  it "Vec(int32) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.float64), 'value': [1.0, 2.0, -3.0]}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016d72010003000000000000f03f000000000000004000000000000008c0")
+  end
 end
