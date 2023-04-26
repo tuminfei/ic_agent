@@ -314,7 +314,7 @@ module IcAgent
 			
 			def encode_value(val)
 				buf = val.encode(Encoding::UTF_8)
-				length = LEB128.encode_signed(buf.length)
+				length = LEB128.encode_signed(buf.length).string
 				length + buf
 			end
 			

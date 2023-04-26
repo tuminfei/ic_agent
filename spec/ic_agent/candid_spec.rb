@@ -18,4 +18,10 @@ describe IcAgent::Candid do
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c00017e01")
   end
+
+  it "BOOL IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.text, 'value': "TEST_STR"}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c00017108544553545f535452")
+  end
 end
