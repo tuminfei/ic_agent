@@ -3,7 +3,7 @@ require 'leb128'
 
 module IcAgent
   module Utils
-    def encode_list(l)
+    def self.encode_list(l)
       ret = ''
       l.each do |item|
         v = item
@@ -22,7 +22,7 @@ module IcAgent
     end
     
     # used for sort record by key
-    def label_hash(s)
+    def self.label_hash(s)
       if s =~ /(^_\d+_$)|(^_0x[0-9a-fA-F]+_$)/
         num = s[1..-2]
         begin
@@ -41,7 +41,7 @@ module IcAgent
       idl_hash(s)
     end
     
-    def idl_hash(s)
+    def self.idl_hash(s)
       h = 0
       s.bytes.each do |c|
         h = (h * 223 + c) % 2**32
@@ -49,7 +49,7 @@ module IcAgent
       h
     end
     
-    def to_request_id(d)
+    def self.to_request_id(d)
       if !d.is_a?(Hash)
         puts d
       end

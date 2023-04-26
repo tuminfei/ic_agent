@@ -84,4 +84,16 @@ describe IcAgent::Candid do
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016d72010003000000000000f03f000000000000004000000000000008c0")
   end
+
+  it "Record(float64, float64) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.record({"key1" => IcAgent::Candid::BaseTypes.float64, "key2" => IcAgent::Candid::BaseTypes.float64}), 'value': {"key1" => 1.0, "key2" => 2.0}}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016c02b2c39bb80472b3c39bb804720100000000000000f03f0000000000000040")
+  end
+
+  it "Record(float64, float64) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.record({"key1" => IcAgent::Candid::BaseTypes.int, "key2" => IcAgent::Candid::BaseTypes.int64}), 'value': {"key1" => 1, "key2" => 2}}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016c02b2c39bb8047cb3c39bb804740100010200000000000000")
+  end
 end

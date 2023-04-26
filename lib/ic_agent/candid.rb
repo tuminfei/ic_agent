@@ -750,7 +750,7 @@ module IcAgent
 		class RecordClass < ConstructType
 			def initialize(field)
 				super()
-				@fields = field.sort_by { |k, _v| label_hash(k) }.to_h
+				@fields = field.sort_by { |k, _v| IcAgent::Utils.label_hash(k) }.to_h
 			end
 		
 			def try_as_tuple
@@ -781,12 +781,14 @@ module IcAgent
 			end
 		
 			def _build_type_table_impl(type_table)
-				@fields.each_value(&:build_type_table)
+				@fields.values.each do |field_value|
+					field_value.send(:build_type_table, type_table)
+				end
 		
-				op_code = LEB128.encode_signed(TypeIds::Record)
-				length = LEB128.encode_signed(@fields.size)
+				op_code = LEB128.encode_signed(TypeIds::Record).string
+				length = LEB128.encode_signed(@fields.size).string
 		
-				fields = @fields.map { |k, v| LEB128.encode_signed(label_hash(k)) + v.encode_type(type_table) }.join.b
+				fields = @fields.map { |k, v| LEB128.encode_signed(IcAgent::Utils.label_hash(k)).string + v.encode_type(type_table) }.join.b
 				type_table.add(self, op_code + length + fields)
 			end
 		
@@ -798,7 +800,7 @@ module IcAgent
 				idx = 0
 				keys = @fields.keys
 				record._fields.each do |k, v|
-					if idx >= @fields.length || label_hash(keys[idx]) != label_hash(k)
+					if idx >= @fields.length || IcAgent::Utils.label_hash(keys[idx]) != IcAgent::Utils.label_hash(k)
 						# skip field
 						v.decode_value(b, v)
 						next
@@ -892,7 +894,7 @@ module IcAgent
 		class VariantClass < ConstructType
 			def initialize(field)
 				super()
-				@fields = field.sort_by { |kv| label_hash(kv[0]) }.to_h
+				@fields = field.sort_by { |kv| IcAgent::Utils.label_hash(kv[0]) }.to_h
 			end
 		
 			def covariant(x)
@@ -946,7 +948,7 @@ module IcAgent
 				wireType = variant._fields[wireHash]
 		
 				@fields.each do |key, expectType|
-					next unless label_hash(wireHash) == label_hash(key)
+					next unless IcAgent::Utils.label_hash(wireHash) == IcAgent::Utils.label_hash(key)
 		
 					ret = {}
 					value = expectType ? expectType.decode_value(b, wireType) : nil
@@ -1149,7 +1151,7 @@ module IcAgent
 		class ServiceClass < ConstructType
 			def initialize(field)
 				super()
-				@fields = Hash[field.sort_by { |k, _| label_hash(k) }]
+				@fields = Hash[field.sort_by { |k, _| IcAgent::Utils.label_hash(k) }]
 			end
 		
 			def covariant(x)
