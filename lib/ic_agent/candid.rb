@@ -1080,11 +1080,11 @@ module IcAgent
 					else
 							raise ArgumentError, 'Principal should be string or bytes.'
 					end
-					l = LEB128.encode_signed(buf.length)
+					l = LEB128.encode_signed(buf.length).string
 					canister = tag + l + buf
 			
 					method = methodName.encode
-					methodLen = LEB128.encode_signed(method.length)
+					methodLen = LEB128.encode_signed(method.length).string
 					tag + canister + methodLen + method
 			end
 			
@@ -1092,16 +1092,16 @@ module IcAgent
 					@arg_types.each { |arg| arg.build_type_table(type_table) }
 					@ret_types.each { |ret| ret.build_type_table(type_table) }
 			
-					op_code = LEB128.encode_signed(TypeIds::Func)
-					arg_len = LEB128.encode_signed(@arg_types.length)
+					op_code = LEB128.encode_signed(TypeIds::Func).string
+					arg_len = LEB128.encode_signed(@arg_types.length).string
 					args = ''
-					@arg_types.each { |arg| args += arg.encodeType(type_table) }
-					ret_len = LEB128.encode_signed(@ret_types.length)
+					@arg_types.each { |arg| args += arg.encode_type(type_table) }
+					ret_len = LEB128.encode_signed(@ret_types.length).string
 					rets = ''
-					@ret_types.each { |ret| rets += ret.encodeType(type_table) }
-					ann_len = LEB128.encode_signed(@annotations.length)
+					@ret_types.each { |ret| rets += ret.encode_type(type_table) }
+					ann_len = LEB128.encode_signed(@annotations.length).string
 					anns = ''
-					@annotations.each { |a| anns += _encodeAnnotation(a) }
+					@annotations.each { |a| anns += _encode_annotation(a) }
 					type_table.add(self, op_code + arg_len + args + ret_len + rets + ann_len + anns)
 			end
 			
@@ -1151,7 +1151,7 @@ module IcAgent
 		class ServiceClass < ConstructType
 			def initialize(field)
 				super()
-				@fields = Hash[field.sort_by { |k, _| IcAgent::Utils.label_hash(k) }]
+				@fields = Hash[field.sort_by { |k, _| IcAgent::Utils.label_hash(k.to_s) }]
 			end
 		
 			def covariant(x)
@@ -1174,17 +1174,17 @@ module IcAgent
 				else
 					raise ArgumentError, 'Principal should be string or bytes.'
 				end
-				l = LEB128.encode_signed(buf.length)
-				tag + l + buf.pack('C*')
+				l = LEB128.encode_signed(buf.length).string
+				tag + l + buf
 			end
 		
 			def _build_type_table_impl(type_table)
 				@fields.each_value { |v| v.build_type_table(type_table) }
-				op_code = LEB128.encode_signed(TypeIds::Service)
-				length = LEB128.encode_signed(@fields.length)
+				op_code = LEB128.encode_signed(TypeIds::Service).string
+				length = LEB128.encode_signed(@fields.length).string
 				fields = ''.b
 				@fields.each { |k, v|
-					fields += LEB128.encode_signed(k.bytesize) + k + v.encodeType(type_table)
+					fields += LEB128.encode_signed(k.to_s.bytesize).string + k.to_s + v.encode_type(type_table)
 				}
 				type_table.add(self, op_code + length + fields)
 			end
