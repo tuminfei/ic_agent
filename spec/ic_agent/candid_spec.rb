@@ -96,4 +96,40 @@ describe IcAgent::Candid do
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016c02b2c39bb8047cb3c39bb804740100010200000000000000")
   end
+
+  it "Principal(aaaaa-aa) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.principal, 'value': "aaaaa-aa"}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c0001680100")
+  end
+
+  it "Principal(h4shw-tywvx-l2ql2-mzsjh-ym5d3-5r65b-zogwd-atf22-43k44-jnv4c-wae) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.principal, 'value': "h4shw-tywvx-l2ql2-mzsjh-ym5d3-5r65b-zogwd-atf22-43k44-jnv4c-wae"}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c000168011d16add7a82f4ccc927c33a3df63ee872e358609975ae6d5ce25b5e0ac02")
+  end
+
+  it "Opt(int) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.int), 'value': [1]}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016e7c01000101")
+  end
+
+  it "Opt(float64) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.float64), 'value': [456.123]}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016e720100018716d9cef7817c40")
+  end
+
+  it "Variant(ok, err) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.variant({"ok" => IcAgent::Candid::BaseTypes.text, "err" => IcAgent::Candid::BaseTypes.text}), 'value': {"ok" => "succ"}}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016b029cc20171e58eb402710100000473756363")
+  end
+
+  it "Variant(ok, err) IcAgent::Candid.encode" do
+    params = [{'type': IcAgent::Candid::BaseTypes.variant({"ok" => IcAgent::Candid::BaseTypes.text, "err" => IcAgent::Candid::BaseTypes.text}), 'value': {"err" => "fail"}}]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql("4449444c016b029cc20171e58eb40271010001046661696c")
+  end
 end

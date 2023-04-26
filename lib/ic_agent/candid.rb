@@ -715,7 +715,7 @@ module IcAgent
 		
 			def _build_type_table_impl(type_table)
 				@type.build_type_table(type_table)
-				op_code = LEB128.encode_signed(TypeIds::Opt)
+				op_code = LEB128.encode_signed(TypeIds::Opt).string
 				buffer = @type.encode_type(type_table)
 				type_table.add(self, op_code + buffer)
 			end
@@ -913,7 +913,7 @@ module IcAgent
 				idx = 0
 				@fields.each do |name, ty|
 					if val.key?(name)
-						count = leb128iEncode(idx)
+						count = LEB128.encode_signed(idx).string
 						buf = ty.encode_value(val[name])
 						return count + buf
 					end
@@ -927,11 +927,11 @@ module IcAgent
 				@fields.each do |_, v|
 					v.build_type_table(type_table)
 				end
-				opCode = leb128iEncode(TypeIds::Variant)
-				length = leb128uEncode(@fields.length)
+				opCode = LEB128.encode_signed(TypeIds::Variant).string
+				length = LEB128.encode_signed(@fields.length).string
 				fields = ''.b
 				@fields.each do |k, v|
-					fields += leb128uEncode(labelHash(k)) + v.encodeType(type_table)
+					fields += LEB128.encode_signed(IcAgent::Utils.label_hash(k)).string + v.encode_type(type_table)
 				end
 				type_table.add(self, opCode + length + fields)
 			end
@@ -1304,7 +1304,7 @@ module IcAgent
 			end
 			
 			def self.variant(fields)
-				eturn VariantClass.new(fields)
+				return VariantClass.new(fields)
 			end
 			
 			def self.rec
