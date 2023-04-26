@@ -559,7 +559,7 @@ module IcAgent
 			end
 	
 			def encode_type(type_table=nil)
-				offset = Math.log2(@bits) - 3
+				offset = Math.log2(@bits).to_i - 3
 				LEB128.encode_signed(-5 - offset).string
 			end
 	
@@ -1576,7 +1576,7 @@ module IcAgent
 			args.each_with_index do |arg, i|
 				t = arg_types[i]
 				unless t.covariant(args[i])
-						raise TypeError, "Invalid #{t.display} argument: #{args[i]}"
+					raise TypeError, "Invalid #{t.display} argument: #{args[i]}"
 				end
 				vals += unicode_to_hex(t.encode_value(args[i]))
 			end

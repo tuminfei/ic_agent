@@ -10,5 +10,6 @@ require_relative "ic_agent/candid"
 module IcAgent
   class Error < StandardError; end
   class ValueError < StandardError; end
+  class TypeError < StandardError; end
   # Your code goes here...
 end
