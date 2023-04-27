@@ -390,7 +390,9 @@ module IcAgent
 			
 			def decode_value(b, t)
 				check_type(t)
-				LEB128.decode_signed(b)
+				puts b.buffer
+				puts t
+				IcAgent::Candid.leb128u_decode(b)
 			end
 			
 			def name

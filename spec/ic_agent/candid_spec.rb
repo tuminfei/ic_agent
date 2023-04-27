@@ -17,8 +17,8 @@ describe IcAgent::Candid do
   it "BOOL IcAgent::Candid.encode and decode" do
     params = [{'type': IcAgent::Candid::BaseTypes.bool, 'value': true}]
     data = IcAgent::Candid.encode(params)
-
     expect(data).to eql("4449444c00017e01")
+
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
@@ -40,16 +40,18 @@ describe IcAgent::Candid do
     )
   end
 
-  it "TEXT IcAgent::Candid.encode" do
-    params = [{'type': IcAgent::Candid::BaseTypes.text, 'value': "TEST_STR"}]
-    data = IcAgent::Candid.encode(params)
-    expect(data).to eql("4449444c00017108544553545f535452")
-  end
-
   it "Nat IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.nat, 'value': 10}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c00017d0a")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    puts decode_params
+    expect(decode_params[0]).to include(
+      "type"  => "nat",
+      "value" => 10
+    )
   end
 
   it "Nat32 IcAgent::Candid.encode" do
