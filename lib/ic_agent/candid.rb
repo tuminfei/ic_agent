@@ -325,10 +325,10 @@ module IcAgent
 			end
 			
 			def decode_value(b, t)
-				checkType(t)
-				length = LEB128.decode_signed(b)
-				buf = safe_read(b, length)
-				buf.force_encoding(Encoding::UTF_8)
+				check_type(t)
+				length = IcAgent::Candid.leb128u_decode(b).to_i
+				buf = IcAgent::Candid.safe_read(b, length)
+				buf.hex2str
 			end
 			
 			def name
@@ -358,7 +358,7 @@ module IcAgent
 			end
 			
 			def decodeValue(b, t)
-				checkType(t)
+				check_type(t)
 				leb128i_decode(b)
 			end
 			
@@ -389,7 +389,7 @@ module IcAgent
 			end
 			
 			def decode_value(b, t)
-				checkType(t)
+				check_type(t)
 				LEB128.decode_signed(b)
 			end
 			
@@ -433,7 +433,7 @@ module IcAgent
 			end
 			
 			def decode_value(b, t)
-				checkType(t)
+				check_type(t)
 				by = safe_read(b, @bits / 8)
 				if @bits == 32
 					by.unpack('f')[0]
@@ -497,7 +497,7 @@ module IcAgent
 			end
 			
 			def decode_value(b, t)
-				checkType(t)
+				check_type(t)
 				by = safe_read(b, @bits / 8)
 				if @bits == 8
 					by.unpack('c')[0] # signed char -> Int8
@@ -634,7 +634,7 @@ module IcAgent
 			end
 		
 			def decode_value(b, t)
-				checkType(t)
+				check_type(t)
 				res = IcAgent::Candid.safe_read_byte(b)
 				if LEB128.encode_signed(res) != 1
 					raise ValueError, 'Cannot decode principal'
@@ -676,7 +676,7 @@ module IcAgent
 			end
 	
 			def decode_value(b, t)
-				vec = checkType(t)
+				vec = check_type(t)
 				raise "Not a vector type" unless vec.is_a?(VecClass)
 				length = leb128u_decode(b)
 				rets = []
@@ -723,7 +723,7 @@ module IcAgent
 			end
 		
 			def decode_value(b, t)
-				opt = checkType(t)
+				opt = check_type(t)
 				raise ValueError, "Not an option type" unless opt.is_a?(OptClass)
 		
 				flag = IcAgent::Candid.safe_read_byte(b)
@@ -795,7 +795,7 @@ module IcAgent
 			end
 		
 			def decode_value(b, t)
-				record = checkType(t)
+				record = check_type(t)
 				raise ArgumentError, "Not a record type" unless record.is_a?(RecordClass)
 		
 				x = {}
@@ -865,7 +865,7 @@ module IcAgent
 			end
 
 			def decode_value(b, t)
-				tup = checkType(t)
+				tup = check_type(t)
 				unless tup.is_a?(TupleClass)
 					raise ValueError, 'not a tuple type'
 				end
@@ -939,7 +939,7 @@ module IcAgent
 			end
 		
 			def decode_value(b, t)
-				variant = checkType(t)
+				variant = check_type(t)
 				raise "Not a variant type" unless variant.is_a?(VariantClass)
 		
 				idx = leb128uDecode(b)

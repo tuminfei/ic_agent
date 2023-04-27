@@ -27,13 +27,20 @@ describe IcAgent::Candid do
     )
   end
 
-  it "BOOL IcAgent::Candid.encode" do
+  it "TEXT IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.text, 'value': "TEST_STR"}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c00017108544553545f535452")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "text",
+      "value" => "TEST_STR"
+    )
   end
 
-  it "BOOL IcAgent::Candid.encode" do
+  it "TEXT IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.text, 'value': "TEST_STR"}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c00017108544553545f535452")
