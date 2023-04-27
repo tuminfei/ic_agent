@@ -388,11 +388,9 @@ module IcAgent
 				LEB128.encode_signed(TypeIds::Nat).string
 			end
 			
-			def decode_value(b, t)
+			def decode_value(pipe, t)
 				check_type(t)
-				puts b.buffer
-				puts t
-				IcAgent::Candid.leb128u_decode(b)
+				IcAgent::Candid.leb128u_decode(pipe)
 			end
 			
 			def name
@@ -1329,10 +1327,11 @@ module IcAgent
 			res = StringIO.new
 			loop do
 				byte = safe_read_byte(pipe)
-				res << byte.hex
+				res.putc(byte.hex)
 				break if byte < "80" || pipe.length.zero?
 			end
-			LEB128.decode_signed(res).chr
+
+			LEB128.decode_signed(res)
 		end
 		
 		def self.leb128i_decode(pipe)
@@ -1594,16 +1593,16 @@ module IcAgent
 		# decode a bytes value
 		# def decode(retTypes, data):	
 		def self.decode(data, ret_types=nil)
-			b = Pipe.new(data)
+			pipe = Pipe.new(data)
 			if data.length < PREFIX.length
 				raise ValueError.new("Message length smaller than prefix number")
 			end
-			prefix_buffer = safe_read(b, PREFIX.length).hex2str
+			prefix_buffer = safe_read(pipe, PREFIX.length).hex2str
 	
 			if prefix_buffer != PREFIX
 				raise ValueError.new("Wrong prefix:" + prefix_buffer + 'expected prefix: DIDL')
 			end
-			raw_table, raw_types = read_type_table(b)
+			raw_table, raw_types = read_type_table(pipe)
 			
 			if ret_types
 				if ret_types.class != Array
@@ -1633,7 +1632,7 @@ module IcAgent
 			types.each_with_index do |t, i|
 				outputs.append({
 					'type' => t.name,
-					'value' => t.decode_value(b, types[i])
+					'value' => t.decode_value(pipe, types[i])
 				})
 			end
 		
