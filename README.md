@@ -18,7 +18,6 @@ gem install ic_agent
 3. canister DID file parsing
 4. canister class, initialized with canister id and DID file
 5. common canister interfaces: ledger, management, nns, cycles wallet
-6. async support
 
 ### Modules & Usage
 
@@ -89,6 +88,12 @@ Decode parameters:
 ```ruby
 # data is bytes, return value is an parameter array
 params =  IcAgent::Candid.decode(data)
+```
+
+## UNIT TEST
+
+```
+bundle exec rspec  
 ```
 
 ## Development
