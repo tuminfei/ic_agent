@@ -14,10 +14,17 @@ describe IcAgent::Candid do
     )
   end
 
-  it "BOOL IcAgent::Candid.encode" do
+  it "BOOL IcAgent::Candid.encode and decode" do
     params = [{'type': IcAgent::Candid::BaseTypes.bool, 'value': true}]
     data = IcAgent::Candid.encode(params)
+
     expect(data).to eql("4449444c00017e01")
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "bool",
+      "value" => true
+    )
   end
 
   it "BOOL IcAgent::Candid.encode" do

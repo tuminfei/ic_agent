@@ -251,10 +251,12 @@ module IcAgent
 			
 			def decode_value(b, t)
 				check_type(t)
-				byte = safeReadByte(b)
-				if LEB128.decode_signed(byte) == 1
+				byte = IcAgent::Candid.safe_read_byte(b)
+				str_io = StringIO.new
+				str_io.putc(byte.hex)
+				if LEB128.decode_signed(str_io) == 1
 					true
-				elsif LEB128.decode_signed(byte) == 0
+				elsif LEB128.decode_signed(str_io) == 0
 					false
 				else
 					raise ValueError.new("Boolean value out of range")
@@ -633,7 +635,7 @@ module IcAgent
 		
 			def decode_value(b, t)
 				checkType(t)
-				res = safe_read_byte(b)
+				res = IcAgent::Candid.safe_read_byte(b)
 				if LEB128.encode_signed(res) != 1
 					raise ValueError, 'Cannot decode principal'
 				end
@@ -724,7 +726,7 @@ module IcAgent
 				opt = checkType(t)
 				raise ValueError, "Not an option type" unless opt.is_a?(OptClass)
 		
-				flag = safe_read_byte(b)
+				flag = IcAgent::Candid.safe_read_byte(b)
 				if flag == "\x00".b
 					[]
 				elsif flag == "\x01".b
@@ -1106,9 +1108,9 @@ module IcAgent
 			end
 			
 			def decode_value(b, t)
-					x = safe_read_byte(b)
+					x = IcAgent::Candid.safe_read_byte(b)
 					raise ArgumentError, 'Cannot decode function reference' unless LEB128.decode_signed(x) == 1
-					res = safe_read_byte(b)
+					res = IcAgent::Candid.safe_read_byte(b)
 					raise ArgumentError, 'Cannot decode principal' unless LEB128.decode_signed(res) == 1
 					length = LEB128.decode_signed(b)
 					canister = IcAgent::Principal.from_hex(safeRead(b, length).unpack('H*').first)
@@ -1190,7 +1192,7 @@ module IcAgent
 			end
 		
 			def decode_value(b, t)
-				res = safe_read_byte(b)
+				res = IcAgent::Candid.safe_read_byte(b)
 				raise ArgumentError, 'Cannot decode principal' unless LEB128.decode_signed(res) == 1
 				length = LEB128.decode_signed(b)
 				IcAgent::Principal.from_hex(safeRead(b, length).pack('C*').unpack1('H*'))
