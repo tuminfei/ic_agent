@@ -1,10 +1,17 @@
 require 'spec_helper'
 
 describe IcAgent::Candid do
-  it "NULL IcAgent::Candid.encode" do
+  it "NULL IcAgent::Candid.encode and decode" do
     params = [{'type': IcAgent::Candid::BaseTypes.null, 'value': nil}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c00017f")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "null",
+      "value" => nil
+    )
   end
 
   it "BOOL IcAgent::Candid.encode" do

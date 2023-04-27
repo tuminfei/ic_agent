@@ -1232,14 +1232,15 @@ module IcAgent
 				if @view.size < num
 					raise ValueError.new("Wrong: out of bound")
 				end
-				res = @view[0...num]
-				@view = @view[num...@view.length]
+				read_num = num * 2
+				res = @view[0...read_num]
+				@view = @view[read_num...@view.length]
 				return res
 			end
 			
 			def readbyte
-				res = @view[0]
-				@view = @view[1...@view.length]
+				res = @view[0, 2]
+				@view = @view[2...@view.length]
 				return res
 			end
 		end
@@ -1321,26 +1322,29 @@ module IcAgent
 		end
 	
 		def self.leb128u_decode(pipe)
-			res = ''.b
+			res = StringIO.new
 			loop do
 				byte = safe_read_byte(pipe)
-				res << byte
-				break if byte < "\x80" || pipe.length.zero?
+				res << byte.hex
+				break if byte < "80" || pipe.length.zero?
 			end
-			LEB128.decode_signed(res)
+			LEB128.decode_signed(res).chr
 		end
 		
 		def self.leb128i_decode(pipe)
 			length = pipe.buffer.length
+			count = 0
 			(0...length).each do |i|
-				if pipe.buffer[i] < "\x80"
-					if pipe.buffer[i] < "\x40"
+				count = i
+				if pipe.buffer[i] < "80"   # 0x80
+					if pipe.buffer[i] < "40" # 0x40
 						return leb128u_decode(pipe)
 					end
 					break
 				end
 			end
-			res = safe_read(pipe, i + 1)
+			res = StringIO.new
+			res.putc(safe_read(pipe, count + 1).hex)
 			LEB128.decode_signed(res)
 		end
 		
@@ -1421,8 +1425,8 @@ module IcAgent
 
 		def self.read_type_table(pipe)
 			type_table = []
-			type_table_len = leb128u_decode(pipe)
-
+			
+			type_table_len = leb128u_decode(pipe).to_i
 			type_table_len.times do
 				ty = leb128i_decode(pipe)
 		
@@ -1473,22 +1477,20 @@ module IcAgent
 				else
 						raise ValueError.new("Illegal op_code: #{ty}")
 				end
-		end
+			end
 		
-		raw_list = []
-		types_len = leb128u_decode(pipe)
-		
-		types_len.times do
-				raw_list << leb128i_decode(pipe)
-		end
-		
-		[type_table, raw_list]
+			raw_list = []
+			types_len = leb128u_decode(pipe).to_i
+			
+			types_len.times do
+					raw_list << leb128i_decode(pipe)
+			end
+			
+			[type_table, raw_list]
 	end		
 
 	
 		def self.get_type(raw_table, table, t)
-			idl = BaseTypes.new # assuming Types is a class
-			
 			if t < -24
 				raise ValueError, "not supported type"
 			end
@@ -1496,41 +1498,41 @@ module IcAgent
 			if t < 0
 				case t
 				when -1
-					return idl.Null
+					return BaseTypes.null
 				when -2
-					return idl.Bool
+					return BaseTypes.bool
 				when -3
-					return idl.Nat
+					return BaseTypes.nat
 				when -4
-					return idl.Int
+					return BaseTypes.int
 				when -5
-					return idl.Nat8
+					return BaseTypes.nat8
 				when -6
-					return idl.Nat16
+					return BaseTypes.nat16
 				when -7
-					return idl.Nat32
+					return BaseTypes.nat32
 				when -8
-					return idl.Nat64
+					return BaseTypes.nat64
 				when -9
-					return idl.Int8
+					return BaseTypes.int8
 				when -10
-					return idl.Int16
+					return BaseTypes.int16
 				when -11
-					return idl.Int32
+					return BaseTypes.int32
 				when -12
-					return idl.Int64
+					return BaseTypes.int64
 				when -13
-					return idl.Float32
+					return BaseTypes.float32
 				when -14
-					return idl.Float64
+					return BaseTypes.float64
 				when -15
-					return idl.Text
+					return BaseTypes.text
 				when -16
-					return idl.Reserved
+					return BaseTypes.reserved
 				when -17
-					return idl.Empty
+					return BaseTypes.empty
 				when -24
-					return idl.Principal
+					return BaseTypes.principal
 				else
 					raise ValueError, "Illegal op_code: #{t}"
 				end
@@ -1587,47 +1589,47 @@ module IcAgent
 	
 		# decode a bytes value
 		# def decode(retTypes, data):	
-		def self.decode(data, retTypes=nil)
+		def self.decode(data, ret_types=nil)
 			b = Pipe.new(data)
 			if data.length < PREFIX.length
 				raise ValueError.new("Message length smaller than prefix number")
 			end
-			prefix_buffer = safe_read(b, PREFIX.length).force_encoding("UTF-8")
+			prefix_buffer = safe_read(b, PREFIX.length).hex2str
 	
 			if prefix_buffer != PREFIX
 				raise ValueError.new("Wrong prefix:" + prefix_buffer + 'expected prefix: DIDL')
 			end
-			rawTable, rawTypes = read_type_table(b)
-	
-			if retTypes
-				if retTypes.class != Array
-					retTypes = [retTypes]
+			raw_table, raw_types = read_type_table(b)
+			
+			if ret_types
+				if ret_types.class != Array
+					ret_types = [ret_types]
 				end
-				if rawTypes.length < retTypes.length
+				if raw_types.length < ret_types.length
 					raise ValueError.new("Wrong number of return value")
 				end
 			end
 			
 			table = []
-			rawTable.length.times do
+			raw_table.length.times do
 				table.append(Types::Rec.new())
 			end
 		
-			rawTable.each_with_index do |entry, i|
-				t = build_type(rawTable, table, entry)
+			raw_table.each_with_index do |entry, i|
+				t = build_type(raw_table, table, entry)
 				table[i].fill(t)
 			end
 		
 			types = []
-			rawTypes.each do |t|
-				types.append(get_type(rawTable, table, t))
+			raw_types.each do |t|
+				types.append(get_type(raw_table, table, t))
 			end
 	
 			outputs = []
 			types.each_with_index do |t, i|
 				outputs.append({
-					'type': t.name,
-					'value': t.decodeValue(b, types[i])
+					'type' => t.name,
+					'value' => t.decode_value(b, types[i])
 				})
 			end
 		
