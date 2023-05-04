@@ -19,7 +19,7 @@ module IcAgent
           'sender_delegation': iden.delegations
         })
       end
-      return req_id, Cbor.encode(envelop)
+      return req_id, CBOR.encode(envelop)
     end
   end
 

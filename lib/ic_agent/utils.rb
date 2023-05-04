@@ -48,24 +48,23 @@ module IcAgent
       end
       h
     end
-    
+
     def self.to_request_id(d)
-      if !d.is_a?(Hash)
-        puts d
-      end
+      return nil unless d.is_a?(Hash)
+      
       vec = []
+      
       d.each do |k, v|
-        if v.is_a?(Array)
-          v = encode_list(v)
-        end
-        if v.is_a?(Integer)
-          v = LEB128.encode_signed(v)
-        end
+        v = encode_list(v) if v.is_a?(Array)
+        v = LEB128.encode_signed(v).string if v.is_a?(Integer)
+        k = k.hex unless k.is_a?(String)
+        v = v.str2hex unless v.is_a?(String)
         h_k = Digest::SHA256.digest(k)
         h_v = Digest::SHA256.digest(v)
-        vec.append(h_k + h_v)
+        vec << h_k + h_v
       end
-      s = vec.sort.join('')
+      
+      s = vec.sort.join
       Digest::SHA256.digest(s)
     end
   end
