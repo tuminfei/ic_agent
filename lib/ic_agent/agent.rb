@@ -1,11 +1,10 @@
-require 'time'
 require 'cbor'
 
 
 module IcAgent
 	class Request
     def self.sign_request(req, iden)
-      req_id = to_request_id(req)
+      req_id = IcAgent::Utils.to_request_id(req)
       msg = IcAgent::IC_REQUEST_DOMAIN_SEPARATOR + req_id
       sig = iden.sign(msg)
       envelop = {
@@ -14,7 +13,7 @@ module IcAgent
         'sender_sig': sig[1]
       }
 
-      if iden.instance_of? DelegateIdentity
+      if iden.is_a?(DelegateIdentity)
         envelop.update({
           'sender_pubkey': iden.der_pubkey,
           'sender_delegation': iden.delegations
