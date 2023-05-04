@@ -47,7 +47,6 @@ describe IcAgent::Candid do
 
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
-    puts decode_params
     expect(decode_params[0]).to include(
       "type"  => "nat",
       "value" => 10
@@ -58,12 +57,26 @@ describe IcAgent::Candid do
     params = [{'type': IcAgent::Candid::BaseTypes.nat32, 'value': 4294967295}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c000179ffffffff")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "nat32",
+      "value" => 4294967295
+    )
   end
 
   it "Nat64 IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.nat64, 'value': 1000000000000000000}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c000178000064a7b3b6e00d")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "nat64",
+      "value" => 1000000000000000000
+    )
   end
 
   it "Int IcAgent::Candid.encode" do

@@ -567,16 +567,16 @@ module IcAgent
 	
 			def decode_value(b, t)
 				check_type(t)
-				by = safe_read(b, @bits / 8)
+				by = IcAgent::Candid.safe_read(b, @bits / 4)
 				case @bits
 				when 8
-					return by.unpack('C').first # unsigned char -> Nat8
+					return by.hex2str.unpack('C').first # unsigned char -> Nat8
 				when 16
-					return by.unpack('S').first # unsigned short -> Nat16
+					return by.hex2str.unpack('S').first # unsigned short -> Nat16
 				when 32
-					return by.unpack('L').first # unsigned int -> Nat32
+					return by.hex2str.unpack('L').first # unsigned int -> Nat32
 				when 64
-					return by.unpack('Q').first # unsigned long long -> Nat64
+					return by.hex2str.unpack('Q').first # unsigned long long -> Nat64
 				else
 					raise ArgumentError, 'bits only support 8, 16, 32, 64'
 				end
@@ -640,7 +640,7 @@ module IcAgent
 					raise ValueError, 'Cannot decode principal'
 				end
 				length = LEB128.encode_signed(b)
-				IcAgent::Principal.from_hex(safe_read(b, length).bytes.pack('H*'))
+				IcAgent::Principal.from_hex(IcAgent::Candid.safe_read(b, length).bytes.pack('H*'))
 			end
 		
 			def name
@@ -1115,7 +1115,7 @@ module IcAgent
 					length = LEB128.decode_signed(b)
 					canister = IcAgent::Principal.from_hex(safeRead(b, length).unpack('H*').first)
 					mLen = LEB128.decode_signed(b)
-					buf = safe_read(b, mLen)
+					buf =  IcAgent::Candid.safe_read(b, mLen)
 					method = buf.force_encoding('UTF-8')
 			
 					[canister, method]
