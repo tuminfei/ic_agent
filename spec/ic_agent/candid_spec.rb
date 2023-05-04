@@ -226,41 +226,90 @@ describe IcAgent::Candid do
     params = [{'type': IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.int), 'value': [1]}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016e7c01000101")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_4",
+      "value" => [1]
+    )
   end
 
   it "Opt(float64) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.float64), 'value': [456.123]}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016e720100018716d9cef7817c40")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_5",
+      "value" => [456.123]
+    )
   end
 
   it "Variant(ok, err) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.variant({"ok" => IcAgent::Candid::BaseTypes.text, "err" => IcAgent::Candid::BaseTypes.text}), 'value': {"ok" => "succ"}}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016b029cc20171e58eb402710100000473756363")
+    
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_6",
+      "value" => {"_24860_"=>"succ"}
+    )
   end
 
   it "Variant(ok, err) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.variant({"ok" => IcAgent::Candid::BaseTypes.text, "err" => IcAgent::Candid::BaseTypes.text}), 'value': {"err" => "fail"}}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016b029cc20171e58eb40271010001046661696c")
+    
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_7",
+      "value" =>  {"_5048165_"=>"fail"}
+    )
   end
 
   it "Tuple(nat, text) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.tuple(IcAgent::Candid::BaseTypes.nat, IcAgent::Candid::BaseTypes.text), 'value': [123456, 'terry.tu']}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016c02007d01710100c0c4070874657272792e7475")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_8",
+      "value" => [123456, "terry.tu"]
+    )
   end
 
   it "Func IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.func([IcAgent::Candid::BaseTypes.text], [IcAgent::Candid::BaseTypes.nat], ['query']), 'value': ['expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae', 'terry']}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016a0171017d0101010001011d779590d2cd339802981dfd935d9a3dbb085cafe6ad19b87229a016d602057465727279")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_9",
+      "value" => ["expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae", "terry"]
+    )
   end
 
   it "Service IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.service({'query_service': IcAgent::Candid::BaseTypes.func([IcAgent::Candid::BaseTypes.text], [IcAgent::Candid::BaseTypes.nat], ['query']) }), 'value': "expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae"}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c026a0171017d010169010d71756572795f73657276696365000101011d779590d2cd339802981dfd935d9a3dbb085cafe6ad19b87229a016d602")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_11",
+      "value" => "expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae"
+    )
   end
 end

@@ -728,9 +728,9 @@ module IcAgent
 				raise ValueError, "Not an option type" unless opt.is_a?(OptClass)
 		
 				flag = IcAgent::Candid.safe_read_byte(b)
-				if flag == "\x00".b
+				if flag == "00"
 					[]
-				elsif flag == "\x01".b
+				elsif flag == "01"
 					[@type.decode_value(b, opt.instance_variable_get(:@type))]
 				else
 					raise ValueError, "Not an option value"
@@ -836,6 +836,8 @@ module IcAgent
 		end
 
 		class TupleClass < RecordClass
+			attr_accessor :components
+
 			def initialize(*_components)
 				x = {}
 				_components.each_with_index do |v, i|
@@ -870,15 +872,15 @@ module IcAgent
 				unless tup.is_a?(TupleClass)
 					raise ValueError, 'not a tuple type'
 				end
-				unless tup._components.length == @components.length
+				unless tup.components.length == @components.length
 					raise ValueError, 'tuple mismatch'
 				end
 				res = []
-				tup._components.each_with_index do |wireType, i|
+				tup.components.each_with_index do |wireType, i|
 					if i >= @components.length
-						wireType.decodeValue(b, wireType)
+						wireType.decode_value(b, wireType)
 					else
-						res << @components[i].decodeValue(b, wireType)
+						res << @components[i].decode_value(b, wireType)
 					end
 				end
 				res
@@ -895,6 +897,8 @@ module IcAgent
 		end
 	
 		class VariantClass < ConstructType
+			attr_accessor :fields
+
 			def initialize(field)
 				super()
 				@fields = field.sort_by { |kv| IcAgent::Utils.label_hash(kv[0]) }.to_h
@@ -943,12 +947,12 @@ module IcAgent
 				variant = check_type(t)
 				raise "Not a variant type" unless variant.is_a?(VariantClass)
 		
-				idx = leb128uDecode(b)
-				raise "Invalid variant index: #{idx}" if idx >= variant._fields.length
+				idx = IcAgent::Candid.leb128u_decode(b)
+				raise "Invalid variant index: #{idx}" if idx >= variant.fields.length
 		
-				keys = variant._fields.keys
+				keys = variant.fields.keys
 				wireHash = keys[idx]
-				wireType = variant._fields[wireHash]
+				wireType = variant.fields[wireHash]
 		
 				@fields.each do |key, expectType|
 					next unless IcAgent::Utils.label_hash(wireHash) == IcAgent::Utils.label_hash(key)
@@ -1110,14 +1114,14 @@ module IcAgent
 			
 			def decode_value(b, t)
 					x = IcAgent::Candid.safe_read_byte(b)
-					raise ArgumentError, 'Cannot decode function reference' unless LEB128.decode_signed(x) == 1
+					raise ArgumentError, 'Cannot decode function reference' unless x == "01"
 					res = IcAgent::Candid.safe_read_byte(b)
-					raise ArgumentError, 'Cannot decode principal' unless LEB128.decode_signed(res) == 1
-					length = LEB128.decode_signed(b)
-					canister = IcAgent::Principal.from_hex(safeRead(b, length).unpack('H*').first)
-					mLen = LEB128.decode_signed(b)
+					raise ArgumentError, 'Cannot decode principal' unless res == "01"
+					length = IcAgent::Candid.leb128u_decode(b)
+					canister = IcAgent::Principal.from_hex(IcAgent::Candid.safe_read(b, length)).to_str
+					mLen = IcAgent::Candid.leb128u_decode(b)
 					buf =  IcAgent::Candid.safe_read(b, mLen)
-					method = buf.force_encoding('UTF-8')
+					method = buf.hex2str
 			
 					[canister, method]
 			end
@@ -1194,9 +1198,9 @@ module IcAgent
 		
 			def decode_value(b, t)
 				res = IcAgent::Candid.safe_read_byte(b)
-				raise ArgumentError, 'Cannot decode principal' unless LEB128.decode_signed(res) == 1
-				length = LEB128.decode_signed(b)
-				IcAgent::Principal.from_hex(safeRead(b, length).pack('C*').unpack1('H*'))
+				raise ArgumentError, 'Cannot decode principal' unless res == "01"
+				length = IcAgent::Candid.leb128u_decode(b)
+				IcAgent::Principal.from_hex(IcAgent::Candid.safe_read(b, length)).to_str
 			end
 		
 			def name
