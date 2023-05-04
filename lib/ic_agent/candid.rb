@@ -636,11 +636,12 @@ module IcAgent
 			def decode_value(b, t)
 				check_type(t)
 				res = IcAgent::Candid.safe_read_byte(b)
-				if LEB128.encode_signed(res) != 1
+				if res != '01'
 					raise ValueError, 'Cannot decode principal'
 				end
-				length = LEB128.encode_signed(b)
-				IcAgent::Principal.from_hex(IcAgent::Candid.safe_read(b, length).bytes.pack('H*'))
+				
+				length = IcAgent::Candid.leb128u_decode(b)
+				IcAgent::Principal.from_hex(IcAgent::Candid.safe_read(b, length)).to_str
 			end
 		
 			def name
@@ -801,7 +802,7 @@ module IcAgent
 				x = {}
 				idx = 0
 				keys = @fields.keys
-				record._fields.each do |k, v|
+				@fields.each do |k, v|
 					if idx >= @fields.length || IcAgent::Utils.label_hash(keys[idx]) != IcAgent::Utils.label_hash(k)
 						# skip field
 						v.decode_value(b, v)
@@ -1400,7 +1401,7 @@ module IcAgent
 					fields[name] = temp
 				end
 				record = BaseTypes::record(fields)
-				tup = record.tryAsTuple()
+				tup = record.try_as_tuple()
 				if tup.is_a?(Array)
 					return BaseTypes::tuple(*tup)
 				else
@@ -1436,7 +1437,7 @@ module IcAgent
 				if ty == TypeIds::Opt || ty == TypeIds::Vec
 						t = leb128i_decode(pipe)
 						type_table << [ty, t]
-				elsif ty == TypeIds::Record.value || ty == TypeIds::Variant
+				elsif ty == TypeIds::Record || ty == TypeIds::Variant
 						fields = []
 						obj_length = leb128u_decode(pipe)
 						prev_hash = -1

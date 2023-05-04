@@ -174,24 +174,52 @@ describe IcAgent::Candid do
     params = [{'type': IcAgent::Candid::BaseTypes.record({"key1" => IcAgent::Candid::BaseTypes.float64, "key2" => IcAgent::Candid::BaseTypes.float64}), 'value': {"key1" => 1.0, "key2" => 2.0}}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016c02b2c39bb80472b3c39bb804720100000000000000f03f0000000000000040")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_2",
+      "value" => {"_1191633330_"=>1.0, "_1191633331_"=>2.0}
+    )
   end
 
   it "Record(float64, float64) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.record({"key1" => IcAgent::Candid::BaseTypes.int, "key2" => IcAgent::Candid::BaseTypes.int64}), 'value': {"key1" => 1, "key2" => 2}}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016c02b2c39bb8047cb3c39bb804740100010200000000000000")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_3",
+      "value" => {"_1191633330_"=>1, "_1191633331_"=>2}
+    )
   end
 
   it "Principal(aaaaa-aa) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.principal, 'value': "aaaaa-aa"}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c0001680100")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "principal",
+      "value" => "aaaaa-aa"
+    )
   end
 
   it "Principal(h4shw-tywvx-l2ql2-mzsjh-ym5d3-5r65b-zogwd-atf22-43k44-jnv4c-wae) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.principal, 'value': "h4shw-tywvx-l2ql2-mzsjh-ym5d3-5r65b-zogwd-atf22-43k44-jnv4c-wae"}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c000168011d16add7a82f4ccc927c33a3df63ee872e358609975ae6d5ce25b5e0ac02")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "principal",
+      "value" => "h4shw-tywvx-l2ql2-mzsjh-ym5d3-5r65b-zogwd-atf22-43k44-jnv4c-wae"
+    )
   end
 
   it "Opt(int) IcAgent::Candid.encode" do
