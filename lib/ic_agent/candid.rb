@@ -357,9 +357,9 @@ module IcAgent
 				LEB128.encode_signed(TypeIds::Int).string
 			end
 			
-			def decodeValue(b, t)
+			def decode_value(b, t)
 				check_type(t)
-				leb128i_decode(b)
+				IcAgent::Candid.leb128i_decode(b)
 			end
 			
 			def name
@@ -434,11 +434,11 @@ module IcAgent
 			
 			def decode_value(b, t)
 				check_type(t)
-				by = safe_read(b, @bits / 8)
+				by = IcAgent::Candid.safe_read(b, @bits / 4)
 				if @bits == 32
-					by.unpack('f')[0]
+					by.hex2str.unpack('f')[0]
 				elsif @bits == 64
-					by.unpack('d')[0]
+					by.hex2str.unpack('d')[0]
 				else
 					raise ValueError, "The length of float have to be 32 bits or 64 bits "
 				end
@@ -498,15 +498,15 @@ module IcAgent
 			
 			def decode_value(b, t)
 				check_type(t)
-				by = safe_read(b, @bits / 8)
+				by = IcAgent::Candid.safe_read(b, @bits / 4)
 				if @bits == 8
-					by.unpack('c')[0] # signed char -> Int8
+					by.hex2str.unpack('c')[0] # signed char -> Int8
 				elsif @bits == 16
-					by.unpack('s')[0] # short -> Int16
+					by.hex2str.unpack('s')[0] # short -> Int16
 				elsif @bits == 32
-					by.unpack('l')[0] # int -> Int32
+					by.hex2str.unpack('l')[0] # int -> Int32
 				elsif @bits == 64
-					by.unpack('q')[0] # long long -> Int64
+					by.hex2str.unpack('q')[0] # long long -> Int64
 				else
 					raise ArgumentError.new("bits only support 8, 16, 32, 64")
 				end
