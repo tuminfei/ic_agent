@@ -24,7 +24,6 @@ module IcAgent
   end
 
   class Agent
-
     attr_accessor :identity, :client, :ingress_expiry, :root_key, :nonce_factory
 
     def initialize(identity, client, nonce_factory=nil, ingress_expiry=300, root_key=IcAgent::IC_ROOT_KEY)
@@ -62,7 +61,7 @@ module IcAgent
         req = {
             'request_type' => "query",
             'sender' => @identity.sender.bytes,
-            'canister_id' => (canister_id.is_a? String) ? Principal.from_text(canister_id).to_bytes : canister_id.bytes,
+            'canister_id' => (canister_id.is_a? String) ? Principal.from_str(canister_id).bytes : canister_id.bytes,
             'method_name' => method_name,
             'arg' => arg,
             'ingress_expiry' => get_expiry_date()

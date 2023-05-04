@@ -90,6 +90,35 @@ Decode parameters:
 params =  IcAgent::Candid.decode(data)
 ```
 
+#### 5. Agent
+
+Create an instance:
+
+```ruby
+# Identity and Client are dependencies of Agent
+iden = IcAgent::Identity.new
+client = IcAgent::Client.new
+agent = IcAgent::Agent.new(iden, client)
+```
+
+Query call:
+
+```ruby
+# query the name of token canister `gvbup-jyaaa-aaaah-qcdwa-cai`
+name = agent.query_raw("gvbup-jyaaa-aaaah-qcdwa-cai", "name", IcAgent::Candid.encode([]))
+```
+
+Update call:
+
+```ruby
+# transfer 100 token to blackhole address `aaaaa-aa`
+params = [
+	{'type': Types.Principal, 'value': 'aaaaa-aa'},
+	{'type': Types.Nat, 'value': 10000000000}
+]
+result = agent.update_raw("gvbup-jyaaa-aaaah-qcdwa-cai", "transfer", IcAgent::Candid.encode(params))
+```
+
 ## UNIT TEST
 
 ```
