@@ -42,6 +42,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "ruby-enum", "~> 0.9.0"
   spec.add_development_dependency "leb128", "~> 1.0"
   spec.add_development_dependency "ctf-party", "~> 2.3"
+  spec.add_development_dependency "cbor", "~> 0.5.9.6"
   spec.add_development_dependency "byebug", "~> 11.1"
 
   # For more information and examples about making a new gem, check out our
