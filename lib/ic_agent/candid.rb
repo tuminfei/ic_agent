@@ -434,7 +434,7 @@ module IcAgent
 			
 			def decode_value(b, t)
 				check_type(t)
-				by = IcAgent::Candid.safe_read(b, @bits / 4)
+				by = IcAgent::Candid.safe_read(b, @bits / 8)
 				if @bits == 32
 					by.hex2str.unpack('f')[0]
 				elsif @bits == 64
@@ -498,7 +498,7 @@ module IcAgent
 			
 			def decode_value(b, t)
 				check_type(t)
-				by = IcAgent::Candid.safe_read(b, @bits / 4)
+				by = IcAgent::Candid.safe_read(b, @bits / 8)
 				if @bits == 8
 					by.hex2str.unpack('c')[0] # signed char -> Int8
 				elsif @bits == 16
@@ -567,7 +567,7 @@ module IcAgent
 	
 			def decode_value(b, t)
 				check_type(t)
-				by = IcAgent::Candid.safe_read(b, @bits / 4)
+				by = IcAgent::Candid.safe_read(b, @bits / 8)
 				case @bits
 				when 8
 					return by.hex2str.unpack('C').first # unsigned char -> Nat8
@@ -655,37 +655,37 @@ module IcAgent
 		class VecClass < ConstructType
 			def initialize(_type)
 				super()
-				@type = _type
+				@interior_type = _type
 			end
 	
 			def covariant(x)
-				x.is_a?(Enumerable) && !x.any? { |item| !@type.covariant(item) }
+				x.is_a?(Enumerable) && !x.any? { |item| !@interior_type.covariant(item) }
 			end
 	
 			def encode_value(val)
 				length = LEB128.encode_signed(val.length).string
-				vec = val.map { |v| @type.encode_value(v) }
+				vec = val.map { |v| @interior_type.encode_value(v) }
 				(length + vec.join).b
 			end
 	
 			def _build_type_table_impl(type_table)
-				@type.build_type_table(type_table)
+				@interior_type.build_type_table(type_table)
 				op_code = LEB128.encode_signed(TypeIds::Vec).string
-				buffer = @type.encode_type(type_table)
+				buffer = @interior_type.encode_type(type_table)
 				type_table.add(self, op_code + buffer)
 			end
 	
 			def decode_value(b, t)
 				vec = check_type(t)
 				raise "Not a vector type" unless vec.is_a?(VecClass)
-				length = leb128u_decode(b)
+				length = IcAgent::Candid.leb128u_decode(b)
 				rets = []
-				length.times { rets << @type.decode_value(b, vec._type) }
+				length.times { rets << @interior_type.decode_value(b, @interior_type) }
 				rets
 			end
 	
 			def name
-				"vec (#{@type.name})"
+				"vec (#{@interior_type.name})"
 			end
 	
 			def id
@@ -693,7 +693,7 @@ module IcAgent
 			end
 	
 			def display
-				"vec " + @type.display
+				"vec " + @interior_type.display
 			end
 		end
 	
@@ -1615,7 +1615,7 @@ module IcAgent
 			
 			table = []
 			raw_table.length.times do
-				table.append(Types::Rec.new())
+				table.append(BaseTypes.rec)
 			end
 		
 			raw_table.each_with_index do |entry, i|

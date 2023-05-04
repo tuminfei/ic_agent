@@ -148,12 +148,26 @@ describe IcAgent::Candid do
     params = [{'type': IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32), 'value': [1, 2, -3]}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016d750100030100000002000000fdffffff")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_0",
+      "value" => [1, 2, -3]
+    )
   end
 
-  it "Vec(int32) IcAgent::Candid.encode" do
+  it "Vec(float64) IcAgent::Candid.encode" do
     params = [{'type': IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.float64), 'value': [1.0, 2.0, -3.0]}]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql("4449444c016d72010003000000000000f03f000000000000004000000000000008c0")
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      "type"  => "rec_1",
+      "value" => [1.0, 2.0, -3.0]
+    )
   end
 
   it "Record(float64, float64) IcAgent::Candid.encode" do
