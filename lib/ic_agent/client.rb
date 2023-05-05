@@ -16,23 +16,23 @@ module IcAgent
       end
     end
 
-    def query(canister_id, data, timeout: DEFAULT_TIMEOUT_QUERY)
+    def query(canister_id, data)
       endpoint = "/api/v2/canister/#{canister_id}/query"
-      ret = @conn.post(endpoint, data, timeout: timeout)
+      ret = @conn.post(endpoint, data)
       ret.body.force_encoding('ISO-8859-1').encode('UTF-8')
       return ret.body
     end
 
-    def call(canister_id, req_id, data, timeout: DEFAULT_TIMEOUT)
+    def call(canister_id, req_id, data)
       endpoint = "/api/v2/canister/#{canister_id}/call"
-      @conn.post(endpoint, data, timeout: timeout)
+      @conn.post(endpoint, data)
       ret.body.force_encoding('ISO-8859-1').encode('UTF-8')
       return req_id
     end
 
-    def read_state(canister_id, data, timeout: DEFAULT_TIMEOUT_QUERY)
+    def read_state(canister_id, data)
       endpoint = "/api/v2/canister/#{canister_id}/read_state"
-      ret = @conn.post(endpoint, data, timeout: timeout)
+      ret = @conn.post(endpoint, data)
       ret.body.force_encoding('ISO-8859-1').encode('UTF-8')
       return ret.body
     end

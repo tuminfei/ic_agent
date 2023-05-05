@@ -44,7 +44,14 @@ module IcAgent
 
     def query_endpoint(canister_id, data)
       ret = @client.query(canister_id, data)
-      CBOR.decode(ret)
+      decode_ret = nil
+      begin
+        decode_ret = CBOR.decode(ret)
+      rescue CBOR::MalformedFormatError
+        decode_ret = ret
+        # print logger
+      end
+      return decode_ret
     end
 
     def call_endpoint(canister_id, request_id, data)
@@ -67,13 +74,15 @@ module IcAgent
         'ingress_expiry' => get_expiry_date()
       }
       _, data = Request.sign_request(req, @identity)
-      result = query_endpoint(effective_canister_id.nil? ? canister_id : effective_canister_id, data)
+      query_canister_id = effective_canister_id.nil? ? canister_id : effective_canister_id
+      result = query_endpoint(query_canister_id, data)
+
       raise Exception, "Malformed result: #{result}" unless result.is_a?(Hash) && result.key?('status')
 
       if result['status'] == 'replied'
         arg = result['reply']['arg']
         if (arg[0..3] == 'DIDL')
-          return decode(arg, return_type)
+          return IcAgent::Candid::decode(arg, return_type)
         else
           return arg
         end
@@ -126,7 +135,7 @@ module IcAgent
 
       begin
         d = CBOR.decode(ret)
-      rescue
+      rescue StandardError
         raise ValueError, "Unable to decode cbor value: #{ret}"
       end
 
