@@ -61,11 +61,11 @@ module IcAgent
         idx = self.has(obj) ? @idx[obj.name] : nil
         knot_idx = @idx.has_key?(knot) ? @idx[knot] : nil
 
-        raise ValueError, 'Missing type index for ' + obj.name if idx == nil
-        raise ValueError, 'Missing type index for ' + knot if knot_idx == nil
+        raise ValueError, "Missing type index for #{obj.name}" if idx == nil
+        raise ValueError, "Missing type index for #{knot}" if knot_idx == nil
 
         @typs[idx] = @typs[knot_idx]
-        #delete the type
+        # delete the type
         @typs.delete_at(knot_idx)
         @idx.delete(knot)
       end
@@ -84,7 +84,7 @@ module IcAgent
       end
 
       def index_of(type_name)
-        raise ValueError, 'Missing type index for ' + type_name if !@idx.has_key?(type_name)
+        raise ValueError, "Missing type index for #{type_name}" if !@idx.has_key?(type_name)
 
         return LEB128.encode_signed(@idx[type_name] | 0).string
       end
@@ -122,7 +122,7 @@ module IcAgent
         raise NotImplementedError, 'subclass must implement abstract method'
       end
 
-      def self._build_type_table_impl(type_table=nil)
+      def self._build_type_table_impl(type_table = nil)
         raise NotImplementedError, 'subclass must implement abstract method'
       end
     end
@@ -133,14 +133,14 @@ module IcAgent
       end
 
       def check_type(t)
-				if self.name != t.name
-					raise ValueError, "type mismatch: type on the wire #{t.name}, expect type #{self.name}"
-				end
+        if self.name != t.name
+          raise ValueError, "type mismatch: type on the wire #{t.name}, expect type #{self.name}"
+        end
 
         t
       end
 
-      def _build_type_table_impl(type_table=nil)
+      def _build_type_table_impl(type_table = nil)
         # No type table encoding for Primitive types.
         return
       end
@@ -169,7 +169,6 @@ module IcAgent
       end
     end
 
-
     class NullClass < PrimitiveType
       def initialize()
         super
@@ -183,7 +182,7 @@ module IcAgent
         ''
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Null).string
       end
 
@@ -211,15 +210,15 @@ module IcAgent
       end
 
       def encode_value(val)
-        raise ValueError.new('Empty cannot appear as a function argument')
+        raise ValueError, 'Empty cannot appear as a function argument'
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Empty).string
       end
 
       def decode_value(b, t)
-        raise ValueError.new('Empty cannot appear as an output')
+        raise ValueError, 'Empty cannot appear as an output'
       end
 
       def name
@@ -244,7 +243,7 @@ module IcAgent
         LEB128.encode_signed(val ? 1 : 0).string
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Bool).string
       end
 
@@ -258,7 +257,7 @@ module IcAgent
         elsif LEB128.decode_signed(str_io) == 0
           false
         else
-          raise ValueError.new('Boolean value out of range')
+          raise ValueError, 'Boolean value out of range'
         end
       end
 
@@ -284,7 +283,7 @@ module IcAgent
         ''
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Reserved).string
       end
 
@@ -319,7 +318,7 @@ module IcAgent
         length + buf
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Text).string
       end
 
@@ -352,7 +351,7 @@ module IcAgent
         LEB128.encode_signed(val).string
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Int).string
       end
 
@@ -383,7 +382,7 @@ module IcAgent
         LEB128.encode_signed(val).string
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Nat).string
       end
 
@@ -422,7 +421,7 @@ module IcAgent
         end
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         opcode = if @bits == 32
                    TypeIds::Float32
                  else
@@ -461,13 +460,13 @@ module IcAgent
         super()
         @bits = bits
         unless [8, 16, 32, 64].include?(@bits)
-          raise ArgumentError.new('bits only support 8, 16, 32, 64')
+          raise ArgumentError, 'bits only support 8, 16, 32, 64'
         end
       end
 
       def covariant(x)
-        min_val = -1 * 2 ** (@bits - 1)
-        max_val = -1 + 2 ** (@bits - 1)
+        min_val = -1 * 2**(@bits - 1)
+        max_val = -1 + 2**(@bits - 1)
         if x >= min_val && x <= max_val
           true
         else
@@ -486,12 +485,12 @@ module IcAgent
         when 64
           buf = [val].pack('q') # long long -> Int64
         else
-          raise ArgumentError.new('bits only support 8, 16, 32, 64')
+          raise ArgumentError, 'bits only support 8, 16, 32, 64'
         end
         buf
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         offset = (Math.log2(@bits) - 3).to_i
         LEB128.encode_signed(-9 - offset).string
       end
@@ -509,12 +508,12 @@ module IcAgent
         when 64
           by.hex2str.unpack('q')[0] # long long -> Int64
         else
-          raise ArgumentError.new('bits only support 8, 16, 32, 64')
+          raise ArgumentError, 'bits only support 8, 16, 32, 64'
         end
       end
 
       def name
-        'int' + @bits.to_s
+        "int#{@bits.to_s}"
       end
 
       def id
@@ -561,7 +560,7 @@ module IcAgent
         buf
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         offset = Math.log2(@bits).to_i - 3
         LEB128.encode_signed(-5 - offset).string
       end
@@ -630,7 +629,7 @@ module IcAgent
         tag + l + buf
       end
 
-      def encode_type(type_table=nil)
+      def encode_type(type_table = nil)
         LEB128.encode_signed(TypeIds::Principal).string
       end
 
@@ -696,7 +695,7 @@ module IcAgent
       end
 
       def display
-        'vec ' + @interior_type.display
+        "vec #{@interior_type.display}"
       end
     end
 
@@ -794,7 +793,9 @@ module IcAgent
         op_code = LEB128.encode_signed(TypeIds::Record).string
         length = LEB128.encode_signed(@fields.size).string
 
-        fields = @fields.map { |k, v| LEB128.encode_signed(IcAgent::Utils.label_hash(k)).string + v.encode_type(type_table) }.join.b
+        fields = @fields.map { |k, v|
+          LEB128.encode_signed(IcAgent::Utils.label_hash(k)).string + v.encode_type(type_table)
+        }.join.b
         type_table.add(self, op_code + length + fields)
       end
 
@@ -1223,8 +1224,6 @@ module IcAgent
       end
     end
 
-
-
     #####################
 
     class Pipe
@@ -1247,7 +1246,7 @@ module IcAgent
 
       def read(num)
         if @view.size < num
-          raise ValueError.new('Wrong: out of bound')
+          raise ValueError, 'Wrong: out of bound'
         end
 
         read_num = num * 2
@@ -1413,7 +1412,7 @@ module IcAgent
       elsif ty == TypeIds::Record
         fields = {}
         entry[1].each do |hash, t|
-          name = '_' + hash.to_s + '_'
+          name = "_#{hash.to_s}_"
           if t >= raw_table.length
             raise ValueError, 'type index out of range'
           end
@@ -1431,7 +1430,7 @@ module IcAgent
       elsif ty == TypeIds::Variant
         fields = {}
         entry[1].each do |hash, t|
-          name = '_' + hash.to_s + '_'
+          name = "_#{hash.to_s}_"
           if t >= raw_table.length
             raise ValueError, 'type index out of range'
           end
@@ -1468,11 +1467,11 @@ module IcAgent
             hash = leb128u_decode(pipe)
 
             if hash >= 2**32
-              raise ValueError.new('field id out of 32-bit range')
+              raise ValueError, 'field id out of 32-bit range'
             end
 
             if prev_hash.is_a?(Integer) && prev_hash >= hash
-              raise ValueError.new('field id collision or not sorted')
+              raise ValueError, 'field id collision or not sorted'
             end
 
             prev_hash = hash
@@ -1501,7 +1500,7 @@ module IcAgent
 
           type_table << [ty, nil]
         else
-          raise ValueError.new("Illegal op_code: #{ty}")
+          raise ValueError, "Illegal op_code: #{ty}"
         end
       end
 
@@ -1514,7 +1513,6 @@ module IcAgent
 
       [type_table, raw_list]
     end
-
 
     def self.get_type(raw_table, table, t)
       if t < -24
@@ -1571,7 +1569,6 @@ module IcAgent
       return table[t]
     end
 
-
     # params = [{type, value}]
     # data = b'DIDL' + len(params) + encoded types + encoded values
     def self.encode(params)
@@ -1616,16 +1613,16 @@ module IcAgent
 
     # decode a bytes value
     # def decode(retTypes, data):
-    def self.decode(data, ret_types=nil)
+    def self.decode(data, ret_types = nil)
       pipe = Pipe.new(data)
       if data.length < PREFIX.length
-        raise ValueError.new('Message length smaller than prefix number')
+        raise ValueError, 'Message length smaller than prefix number'
       end
 
       prefix_buffer = safe_read(pipe, PREFIX.length).hex2str
 
       if prefix_buffer != PREFIX
-        raise ValueError.new('Wrong prefix:' + prefix_buffer + 'expected prefix: DIDL')
+        raise ValueError, "Wrong prefix:#{prefix_buffer}expected prefix: DIDL"
       end
 
       raw_table, raw_types = read_type_table(pipe)
@@ -1635,7 +1632,7 @@ module IcAgent
           ret_types = [ret_types]
         end
         if raw_types.length < ret_types.length
-          raise ValueError.new('Wrong number of return value')
+          raise ValueError, 'Wrong number of return value'
         end
       end
 
