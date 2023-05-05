@@ -1086,7 +1086,7 @@ module IcAgent
 
       def encode_value(vals)
         principal = vals[0]
-        methodName = vals[1]
+        method_name = vals[1]
         tag = [1].pack('C')
         if principal.is_a?(String)
           buf = IcAgent::Principal.from_str(principal).bytes
@@ -1098,9 +1098,9 @@ module IcAgent
         l = LEB128.encode_signed(buf.length).string
         canister = tag + l + buf
 
-        method = methodName.encode
-        methodLen = LEB128.encode_signed(method.length).string
-        tag + canister + methodLen + method
+        method = method_name.encode
+        method_len = LEB128.encode_signed(method.length).string
+        tag + canister + method_len + method
       end
 
       def _build_type_table_impl(type_table)
@@ -1301,8 +1301,9 @@ module IcAgent
           return FixedNatClass.new(32)
         when 'nat64'
           return FixedNatClass.new(64)
+        else
+          puts "Method #{method_name} is not defined"
         end
-        puts "Method #{method_name} is not defined"
       end
 
       def self.tuple(*types)
@@ -1455,10 +1456,10 @@ module IcAgent
       type_table_len.times do
         ty = leb128i_decode(pipe)
 
-        if ty == TypeIds::Opt || ty == TypeIds::Vec
+        if [TypeIds::Opt, TypeIds::Vec].include?(ty)
           t = leb128i_decode(pipe)
           type_table << [ty, t]
-        elsif ty == TypeIds::Record || ty == TypeIds::Variant
+        elsif [TypeIds::Record, TypeIds::Variant].include?(ty)
           fields = []
           obj_length = leb128u_decode(pipe)
           prev_hash = -1

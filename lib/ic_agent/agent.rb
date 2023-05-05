@@ -26,7 +26,7 @@ module IcAgent
   class Agent
     attr_accessor :identity, :client, :ingress_expiry, :root_key, :nonce_factory
 
-    def initialize(identity, client, nonce_factory=nil, ingress_expiry=300, root_key=IcAgent::IC_ROOT_KEY)
+    def initialize(identity, client, nonce_factory = nil, ingress_expiry = 300, root_key = IcAgent::IC_ROOT_KEY)
       @identity = identity
       @client = client
       @ingress_expiry = ingress_expiry
@@ -44,7 +44,7 @@ module IcAgent
 
     def query_endpoint(canister_id, data)
       ret = @client.query(canister_id, data)
-      Cbor.decode(ret)
+      CBOR.decode(ret)
     end
 
     def call_endpoint(canister_id, request_id, data)
@@ -68,9 +68,8 @@ module IcAgent
       }
       _, data = Request.sign_request(req, @identity)
       result = query_endpoint(effective_canister_id.nil? ? canister_id : effective_canister_id, data)
-      unless result.is_a?(Hash) && result.key?('status')
-        raise Exception.new("Malformed result: #{result}")
-      end
+      raise Exception, "Malformed result: #{result}" unless result.is_a?(Hash) && result.key?('status')
+
       if result['status'] == 'replied'
         arg = result['reply']['arg']
         if (arg[0..3] == 'DIDL')
@@ -79,7 +78,7 @@ module IcAgent
           return arg
         end
       elsif result['status'] == 'rejected'
-        raise Exception.new("Canister reject the call: #{result['reject_message']}")
+        raise Exception, "Canister reject the call: #{result['reject_message']}"
       end
     end
 
@@ -90,14 +89,14 @@ module IcAgent
         'canister_id' => (canister_id.is_a? String) ? Principal.from_text(canister_id).to_bytes : canister_id.bytes,
         'method_name' => method_name,
         'arg' => arg,
-        'ingress_expiry' => get_expiry_date()
+        'ingress_expiry' => get_expiry_date
       }
       req_id, data = Request.sign_request(req, @identity)
       eid = effective_canister_id.nil? ? canister_id : effective_canister_id
       _ = call_endpoint(eid, req_id, data)
       status, result = poll(eid, req_id, **kwargs)
       if status == 'rejected'
-        raise Exception.new('Rejected: ' + result.to_s)
+        raise Exception, "Rejected: #{result.to_s}"
       elsif status == 'replied'
         if result[0..3] == 'DIDL'
           return decode(result, return_type)
@@ -106,7 +105,7 @@ module IcAgent
           return result
         end
       else
-        raise Exception.new('Timeout to poll result, current status: ' + status.to_s)
+        raise Exception, "Timeout to poll result, current status: #{status.to_s}"
       end
     end
 
@@ -115,7 +114,7 @@ module IcAgent
         'request_type' => 'read_state',
         'sender' => @identity.sender.bytes,
         'paths' => paths,
-        'ingress_expiry' => get_expiry_date(),
+        'ingress_expiry' => get_expiry_date
       }
       _, data = Request.sign_request(req, @identity)
       ret = read_state_endpoint(canister_id, data)
@@ -146,13 +145,11 @@ module IcAgent
       end
     end
 
-    def poll(canister_id, req_id, delay=1, timeout = IcAgent::DEFAULT_POLL_TIMEOUT_SECS)
+    def poll(canister_id, req_id, delay = 1, timeout = IcAgent::DEFAULT_POLL_TIMEOUT_SECS)
       status = nil
-      for _ in wait(delay, timeout)
+      wait(delay, timeout).each do |_|
         status, cert = request_status_raw(canister_id, req_id)
-        if status == 'replied' || status == 'done' || status == 'rejected'
-          break
-        end
+        break if status == 'replied' || status == 'done' || status == 'rejected'
       end
 
       if status == 'replied'
