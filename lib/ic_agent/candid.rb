@@ -1307,35 +1307,35 @@ module IcAgent
       end
 
       def self.tuple(*types)
-        return TupleClass.new(*types)
+        TupleClass.new(*types)
       end
 
       def self.vec(t)
-        return VecClass.new(t)
+        VecClass.new(t)
       end
 
       def self.opt(t)
-        return OptClass.new(t)
+        OptClass.new(t)
       end
 
       def self.record(t)
-        return RecordClass.new(t)
+        RecordClass.new(t)
       end
 
       def self.variant(fields)
-        return VariantClass.new(fields)
+        VariantClass.new(fields)
       end
 
       def self.rec
-        return RecClass.new
+        RecClass.new
       end
 
       def self.func(args, ret, annotations)
-        return FuncClass.new(args, ret, annotations)
+        FuncClass.new(args, ret, annotations)
       end
 
       def self.service(t)
-        return ServiceClass.new(t)
+        ServiceClass.new(t)
       end
     end
 

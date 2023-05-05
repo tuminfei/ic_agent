@@ -82,7 +82,7 @@ module IcAgent
       if result['status'] == 'replied'
         arg = result['reply']['arg']
         if (arg[0..3] == 'DIDL')
-          return IcAgent::Candid::decode(arg, return_type)
+          return IcAgent::Candid.decode(arg, return_type)
         else
           return arg
         end
@@ -108,7 +108,7 @@ module IcAgent
         raise Exception, "Rejected: #{result.to_s}"
       elsif status == 'replied'
         if result[0..3] == 'DIDL'
-          return decode(result, return_type)
+          return IcAgent::Candid.decode(result, return_type)
         else
           # Some canisters don't use DIDL (e.g. they might encode using json instead)
           return result
@@ -144,9 +144,9 @@ module IcAgent
     end
 
     def request_status_raw(canister_id, req_id)
-      paths = [ ['request_status'.encode(), req_id], ]
+      paths = [ ['request_status', req_id], ]
       cert = read_state_raw(canister_id, paths)
-      status = lookup(['request_status'.encode(), req_id, 'status'.encode()], cert)
+      status = lookup(['request_status', req_id, 'status'], cert)
       if status.nil?
         return status, cert
       else
@@ -162,11 +162,11 @@ module IcAgent
       end
 
       if status == 'replied'
-        path = ['request_status'.encode(), req_id, 'reply'.encode()]
+        path = ['request_status', req_id, 'reply']
         res = lookup(path, cert)
         return status, res
       elsif status == 'rejected'
-        path = ['request_status'.encode(), req_id, 'reject_message'.encode()]
+        path = ['request_status', req_id, 'reject_message']
         msg = lookup(path, cert)
         return status, msg
       else
