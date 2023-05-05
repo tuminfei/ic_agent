@@ -20,7 +20,7 @@ module IcAgent
       end
       ret
     end
-    
+
     # used for sort record by key
     def self.label_hash(s)
       if s =~ /(^_\d+_$)|(^_0x[0-9a-fA-F]+_$)/
@@ -40,7 +40,7 @@ module IcAgent
       end
       idl_hash(s)
     end
-    
+
     def self.idl_hash(s)
       h = 0
       s.bytes.each do |c|
@@ -51,9 +51,9 @@ module IcAgent
 
     def self.to_request_id(d)
       return nil unless d.is_a?(Hash)
-      
+
       vec = []
-      
+
       d.each do |k, v|
         v = encode_list(v) if v.is_a?(Array)
         v = LEB128.encode_signed(v).string if v.is_a?(Integer)
@@ -63,7 +63,7 @@ module IcAgent
         h_v = Digest::SHA256.digest(v)
         vec << h_k + h_v
       end
-      
+
       s = vec.sort.join
       Digest::SHA256.digest(s)
     end

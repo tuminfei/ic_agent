@@ -8,11 +8,11 @@ module IcAgent
     def initialize(url = "https://ic0.app")
       @url = url
       @conn = Faraday.new(url: url) do |faraday|
-          faraday.request :url_encoded
-          faraday.adapter Faraday.default_adapter
-          faraday.headers['Content-Type'] = 'application/cbor'
-          faraday.options.timeout = DEFAULT_TIMEOUT
-          faraday.options.open_timeout = DEFAULT_TIMEOUT_QUERY
+        faraday.request :url_encoded
+        faraday.adapter Faraday.default_adapter
+        faraday.headers['Content-Type'] = 'application/cbor'
+        faraday.options.timeout = DEFAULT_TIMEOUT
+        faraday.options.open_timeout = DEFAULT_TIMEOUT_QUERY
       end
     end
 
