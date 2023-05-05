@@ -75,7 +75,7 @@ module IcAgent
     end
 
     def to_s
-      '(' + @key_type + ', ' + @privkey + ', ' + @pubkey + ')'
+      "(#{@key_type}, #{@privkey}, #{@pubkey})"
     end
 
     alias_method :inspect, :to_s
@@ -91,11 +91,11 @@ module IcAgent
     end
 
     def sign(msg)
-      return @identity.sign(msg)
+      @identity.sign(msg)
     end
 
     def sender
-      return Principal.self_authenticating(@der_pubkey)
+      Principal.self_authenticating(@der_pubkey)
     end
 
     def self.from_json(ic_identity, ic_delegation)
@@ -109,7 +109,7 @@ module IcAgent
     end
 
     def to_s
-      return '(' + @identity.to_s + ",\n" + @delegations.to_s + ")"
+      "(#{@identity.to_s},\n#{@delegations.to_s})"
     end
 
     alias_method :inspect, :to_s
