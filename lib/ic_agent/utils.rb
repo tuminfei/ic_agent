@@ -14,7 +14,7 @@ module IcAgent
           v = LEB128.encode_signed(v)
         end
         if item.is_a?(String)
-          v = item.bytes
+          v = item
         end
         ret += Digest::SHA256.digest(v)
       end
@@ -63,7 +63,6 @@ module IcAgent
         h_v = Digest::SHA256.digest(v)
         vec << h_k + h_v
       end
-
       s = vec.sort.join
       Digest::SHA256.digest(s)
     end

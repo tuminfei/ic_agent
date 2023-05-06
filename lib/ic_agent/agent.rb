@@ -94,13 +94,13 @@ module IcAgent
     end
 
     def update_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil, **kwargs)
-      req_canister_id = canister_id.is_a?(String) ? Principal.from_text(canister_id).to_bytes : canister_id.bytes
+      req_canister_id = canister_id.is_a?(String) ? Principal.from_str(canister_id).bytes : canister_id.bytes
       req = {
         'request_type' => 'call',
         'sender' => @identity.sender.bytes,
         'canister_id' => req_canister_id,
         'method_name' => method_name,
-        'arg' => arg,
+        'arg' => arg.hex2str,
         'ingress_expiry' => get_expiry_date
       }
       req_id, data = Request.sign_request(req, @identity)
@@ -141,14 +141,13 @@ module IcAgent
       rescue StandardError
         raise ValueError, "Unable to decode cbor value: #{ret}"
       end
-
-      CBOR.decode(d['certificate'])
+      CBOR.decode(d.value['certificate'])
     end
 
     def request_status_raw(canister_id, req_id)
-      paths = [ ['request_status', req_id], ]
+      paths = [['request_status', req_id]]
       cert = read_state_raw(canister_id, paths)
-      status = lookup(['request_status', req_id, 'status'], cert)
+      status = IcAgent::Certificate.lookup(['request_status', req_id, 'status'], cert)
       if status.nil?
         [status, cert]
       else
@@ -158,18 +157,20 @@ module IcAgent
 
     def poll(canister_id, req_id, delay = 1, timeout = IcAgent::DEFAULT_POLL_TIMEOUT_SECS)
       status = nil
-      wait(delay, timeout).each do |_|
+      (timeout / delay).to_i.times do
         status, cert = request_status_raw(canister_id, req_id)
         break if %w[replied done rejected].include?(status)
+
+        sleep(delay)
       end
 
       if status == 'replied'
         path = ['request_status', req_id, 'reply']
-        res = lookup(path, cert)
+        res = IcAgent::Certificate.lookup(path, cert)
         [status, res]
       elsif status == 'rejected'
         path = ['request_status', req_id, 'reject_message']
-        msg = lookup(path, cert)
+        msg = IcAgent::Certificate.lookup(path, cert)
         [status, msg]
       else
         [status, _]

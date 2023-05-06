@@ -25,7 +25,7 @@ module IcAgent
 
     def call(canister_id, req_id, data)
       endpoint = "/api/v2/canister/#{canister_id}/call"
-      @conn.post(endpoint, data)
+      ret = @conn.post(endpoint, data)
       ret.body.force_encoding('ISO-8859-1').encode('UTF-8')
       return req_id
     end

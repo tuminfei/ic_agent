@@ -113,8 +113,8 @@ Update call:
 ```ruby
 # transfer 100 token to blackhole address `aaaaa-aa`
 params = [
-	{'type': Types.Principal, 'value': 'aaaaa-aa'},
-	{'type': Types.Nat, 'value': 10000000000}
+  { 'type': IcAgent::Candid::BaseTypes.principal, 'value': 'aaaaa-aa' },
+  { 'type': IcAgent::Candid::BaseTypes.nat, 'value': 10000000000 }
 ]
 result = agent.update_raw("gvbup-jyaaa-aaaah-qcdwa-cai", "transfer", IcAgent::Candid.encode(params))
 ```

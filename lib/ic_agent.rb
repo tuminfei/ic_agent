@@ -7,6 +7,7 @@ require_relative 'ic_agent/client'
 require_relative 'ic_agent/utils'
 require_relative 'ic_agent/candid'
 require_relative 'ic_agent/agent'
+require_relative 'ic_agent/certificate'
 
 module IcAgent
   class Error < StandardError; end
