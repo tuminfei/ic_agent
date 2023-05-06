@@ -9,7 +9,7 @@ module IcAgent
   class Identity
     attr_reader :privkey, :pubkey, :der_pubkey, :sk, :vk
 
-    def initialize(privkey= '', type= 'ed25519', anonymous= false)
+    def initialize(privkey = '', type = 'ed25519', anonymous = false)
       privkey = [privkey].pack('H*')
       @anonymous = anonymous
       if @anonymous

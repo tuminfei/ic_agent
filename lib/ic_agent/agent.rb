@@ -65,13 +65,14 @@ module IcAgent
     end
 
     def query_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil)
+      req_canister_id = canister_id.is_a?(String) ? Principal.from_str(canister_id).bytes : canister_id.bytes
       req = {
-        'request_type' => "query",
+        'request_type' => 'query',
         'sender' => @identity.sender.bytes,
-        'canister_id' => (canister_id.is_a? String) ? Principal.from_str(canister_id).bytes : canister_id.bytes,
+        'canister_id' => req_canister_id,
         'method_name' => method_name,
         'arg' => arg,
-        'ingress_expiry' => get_expiry_date()
+        'ingress_expiry' => get_expiry_date
       }
       _, data = Request.sign_request(req, @identity)
       query_canister_id = effective_canister_id.nil? ? canister_id : effective_canister_id
@@ -93,7 +94,7 @@ module IcAgent
 
     def update_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil, **kwargs)
       req = {
-        'request_type' => "call",
+        'request_type' => 'call',
         'sender' => @identity.sender.bytes,
         'canister_id' => (canister_id.is_a? String) ? Principal.from_text(canister_id).to_bytes : canister_id.bytes,
         'method_name' => method_name,
@@ -158,7 +159,7 @@ module IcAgent
       status = nil
       wait(delay, timeout).each do |_|
         status, cert = request_status_raw(canister_id, req_id)
-        break if status == 'replied' || status == 'done' || status == 'rejected'
+        break if %w[replied done rejected].include?(status)
       end
 
       if status == 'replied'
