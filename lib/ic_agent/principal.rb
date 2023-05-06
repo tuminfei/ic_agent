@@ -29,7 +29,8 @@ module IcAgent
     end
 
     def self.self_authenticating(pubkey)
-      pubkey = [pubkey].pack('H*') if pubkey.is_a?(String)
+      pubkey = [pubkey].pack('H*') unless pubkey.size < 64
+
       hash_ = OpenSSL::Digest::SHA224.digest(pubkey)
       hash_ += [PrincipalSort::SelfAuthenticating].pack('C')
       Principal.new(bytes: hash_)

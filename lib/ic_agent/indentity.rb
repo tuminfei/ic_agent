@@ -4,10 +4,11 @@ require 'ecdsa'
 require 'bitcoin/trezor/mnemonic'
 require 'ed25519'
 require 'securerandom'
+require 'ctf_party'
 
 module IcAgent
   class Identity
-    attr_reader :privkey, :pubkey, :der_pubkey, :sk, :vk
+    attr_reader :privkey, :pubkey, :der_pubkey, :sk, :vk, :key_type
 
     def initialize(privkey = '', type = 'ed25519', anonymous = false)
       privkey = [privkey].pack('H*')
@@ -28,15 +29,11 @@ module IcAgent
         @pubkey = ECDSA::Format::PointOctetString.encode(@vk, compression: true).unpack1('H*')
         @der_pubkey = ECDSA::Format::PointOctetString.encode(@vk, compression: false)
       elsif type == 'ed25519'
-        if privkey.length > 0
-          @sk = Ed25519::SigningKey.new(privkey)
-        else
-          @sk = Ed25519::SigningKey.generate
-        end
+        @sk = privkey.length > 0 ? Ed25519::SigningKey.new(privkey) : Ed25519::SigningKey.generate
         @privkey = @sk.keypair.unpack1('H*')
         @vk = @sk.verify_key
         @pubkey = @vk.to_bytes.unpack1('H*')
-        @der_pubkey = @vk.to_bytes
+        @der_pubkey = "#{IcAgent::IC_PUBKEY_DER_HERD}#{@vk.to_bytes.unpack1('H*')}".hex2str
       else
         raise 'unsupported identity type'
       end
