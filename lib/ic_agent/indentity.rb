@@ -3,7 +3,6 @@ require 'json'
 require 'ecdsa'
 require 'bitcoin/trezor/mnemonic'
 require 'ed25519'
-require 'securerandom'
 require 'ctf_party'
 
 module IcAgent

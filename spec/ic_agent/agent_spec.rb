@@ -7,5 +7,6 @@ describe IcAgent::Agent do
     agent = IcAgent::Agent.new(iden, client)
 
     name = agent.query_raw("gvbup-jyaaa-aaaah-qcdwa-cai", "name", IcAgent::Candid.encode([]))
+    expect(name).to include('type' => 'text', 'value' => 'XTC Test')
   end
 end

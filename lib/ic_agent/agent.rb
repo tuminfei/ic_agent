@@ -1,4 +1,5 @@
 require 'cbor'
+require 'ctf_party'
 
 
 module IcAgent
@@ -19,7 +20,7 @@ module IcAgent
                          'sender_delegation': iden.delegations
                        })
       end
-      return req_id, CBOR.encode(envelop)
+      [req_id, CBOR.encode(envelop)]
     end
   end
 
@@ -51,7 +52,7 @@ module IcAgent
         decode_ret = ret
         # print logger
       end
-      return decode_ret
+      decode_ret
     end
 
     def call_endpoint(canister_id, request_id, data)
@@ -61,7 +62,7 @@ module IcAgent
 
     def read_state_endpoint(canister_id, data)
       result = @client.read_state(canister_id, data)
-      return result
+      result
     end
 
     def query_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil)
@@ -71,32 +72,33 @@ module IcAgent
         'sender' => @identity.sender.bytes,
         'canister_id' => req_canister_id,
         'method_name' => method_name,
-        'arg' => arg,
+        'arg' => arg.hex2str,
         'ingress_expiry' => get_expiry_date
       }
+
       _, data = Request.sign_request(req, @identity)
       query_canister_id = effective_canister_id.nil? ? canister_id : effective_canister_id
       result = query_endpoint(query_canister_id, data)
+      raise Exception, "Malformed result: #{result}" unless result.is_a?(CBOR::Tagged) && result.value.key?('status')
 
-      raise Exception, "Malformed result: #{result}" unless result.is_a?(Hash) && result.key?('status')
-
-      if result['status'] == 'replied'
-        arg = result['reply']['arg']
-        if (arg[0..3] == 'DIDL')
-          return IcAgent::Candid.decode(arg, return_type)
+      if result.value['status'] == 'replied'
+        arg = result.value['reply']['arg']
+        if arg[0..3] == 'DIDL'
+          IcAgent::Candid.decode(arg.to_hex, return_type)
         else
-          return arg
+          arg
         end
-      elsif result['status'] == 'rejected'
+      elsif result.value['status'] == 'rejected'
         raise Exception, "Canister reject the call: #{result['reject_message']}"
       end
     end
 
     def update_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil, **kwargs)
+      req_canister_id = canister_id.is_a?(String) ? Principal.from_text(canister_id).to_bytes : canister_id.bytes
       req = {
         'request_type' => 'call',
         'sender' => @identity.sender.bytes,
-        'canister_id' => (canister_id.is_a? String) ? Principal.from_text(canister_id).to_bytes : canister_id.bytes,
+        'canister_id' => req_canister_id,
         'method_name' => method_name,
         'arg' => arg,
         'ingress_expiry' => get_expiry_date
@@ -109,10 +111,10 @@ module IcAgent
         raise Exception, "Rejected: #{result.to_s}"
       elsif status == 'replied'
         if result[0..3] == 'DIDL'
-          return IcAgent::Candid.decode(result, return_type)
+          IcAgent::Candid.decode(result, return_type)
         else
           # Some canisters don't use DIDL (e.g. they might encode using json instead)
-          return result
+          result
         end
       else
         raise Exception, "Timeout to poll result, current status: #{status.to_s}"
@@ -140,8 +142,7 @@ module IcAgent
         raise ValueError, "Unable to decode cbor value: #{ret}"
       end
 
-      cert = CBOR.decode(d['certificate'])
-      return cert
+      CBOR.decode(d['certificate'])
     end
 
     def request_status_raw(canister_id, req_id)
@@ -149,9 +150,9 @@ module IcAgent
       cert = read_state_raw(canister_id, paths)
       status = lookup(['request_status', req_id, 'status'], cert)
       if status.nil?
-        return status, cert
+        [status, cert]
       else
-        return status.decode, cert
+        [status.decode, cert]
       end
     end
 
@@ -165,13 +166,13 @@ module IcAgent
       if status == 'replied'
         path = ['request_status', req_id, 'reply']
         res = lookup(path, cert)
-        return status, res
+        [status, res]
       elsif status == 'rejected'
         path = ['request_status', req_id, 'reject_message']
         msg = lookup(path, cert)
-        return status, msg
+        [status, msg]
       else
-        return status, _
+        [status, _]
       end
     end
   end
