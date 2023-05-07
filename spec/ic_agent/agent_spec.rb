@@ -19,20 +19,10 @@ describe IcAgent::Agent do
       { 'type': IcAgent::Candid::BaseTypes.principal, 'value': 'aaaaa-aa' },
       { 'type': IcAgent::Candid::BaseTypes.nat, 'value': 10000000000 }
     ]
-
-    # req_id = "0899c241fd63ff03345ad164ca5014668d101d6ccafa74730ad9c55c8fbe4942".hex2str
-    # paths = [['request_status', req_id]]
-    # req = {
-    #   'request_type' => 'read_state',
-    #   'sender' => iden.sender.bytes,
-    #   'paths' => paths,
-    #   'ingress_expiry' => 1683366475514657024
-    # }
-    # req_id = IcAgent::Utils.to_request_id(req)
-    # puts req_id
-    # puts req_id.to_hex
-
     result = agent.update_raw('gvbup-jyaaa-aaaah-qcdwa-cai', 'transfer', IcAgent::Candid.encode(params))
+
+    expect(result.size).to eql(1)
+    expect(result[0]).to include('type' => 'rec_0')
   end
 end
 

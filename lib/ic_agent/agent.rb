@@ -111,7 +111,7 @@ module IcAgent
         raise Exception, "Rejected: #{result.to_s}"
       elsif status == 'replied'
         if result[0..3] == 'DIDL'
-          IcAgent::Candid.decode(result, return_type)
+          IcAgent::Candid.decode(result.to_hex, return_type)
         else
           # Some canisters don't use DIDL (e.g. they might encode using json instead)
           result
@@ -148,15 +148,12 @@ module IcAgent
       paths = [['request_status', req_id]]
       cert = read_state_raw(canister_id, paths)
       status = IcAgent::Certificate.lookup(['request_status', req_id, 'status'], cert)
-      if status.nil?
-        [status, cert]
-      else
-        [status.decode, cert]
-      end
+      [status, cert]
     end
 
     def poll(canister_id, req_id, delay = 1, timeout = IcAgent::DEFAULT_POLL_TIMEOUT_SECS)
       status = nil
+      cert = nil
       (timeout / delay).to_i.times do
         status, cert = request_status_raw(canister_id, req_id)
         break if %w[replied done rejected].include?(status)

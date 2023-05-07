@@ -9,13 +9,17 @@ module IcAgent
 
   class Certificate
     def self.lookup(path, cert)
-      lookup_path(path, cert['tree'])
+      lookup_path(path, cert.value['tree'])
     end
 
     def self.lookup_path(path, tree)
       offset = 0
       if path.length == 0
-        return tree[1] if tree[0] == NodeId::LEAF else nil
+        if tree[0] == NodeId::LEAF
+          return tree[1]
+        else
+          return nil
+        end
       end
       label = path[0].is_a?(String) ? path[0].encode : path[0]
       t = find_label(label, flatten_forks(tree))
@@ -27,7 +31,7 @@ module IcAgent
 
     def self.flatten_forks(t)
       if t[0] == NodeId::EMPTY
-        return []
+        []
       elsif t[0] == NodeId::FORK
         val1 = flatten_forks(t[1])
         val2 = flatten_forks(t[2])

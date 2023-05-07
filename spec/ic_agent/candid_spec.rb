@@ -9,7 +9,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'null',
+      'type' => 'null',
       'value' => nil
     )
   end
@@ -22,7 +22,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'bool',
+      'type' => 'bool',
       'value' => true
     )
   end
@@ -35,7 +35,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'text',
+      'type' => 'text',
       'value' => 'TEST_STR'
     )
   end
@@ -48,7 +48,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'nat',
+      'type' => 'nat',
       'value' => 10
     )
   end
@@ -61,7 +61,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'nat32',
+      'type' => 'nat32',
       'value' => 4294967295
     )
   end
@@ -74,7 +74,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'nat64',
+      'type' => 'nat64',
       'value' => 1000000000000000000
     )
   end
@@ -87,7 +87,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'int',
+      'type' => 'int',
       'value' => 10
     )
   end
@@ -100,7 +100,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'int32',
+      'type' => 'int32',
       'value' => 2147483647
     )
   end
@@ -113,7 +113,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'int64',
+      'type' => 'int64',
       'value' => 1000000000000000000
     )
   end
@@ -126,7 +126,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'float32',
+      'type' => 'float32',
       'value' => 42949672.0
     )
   end
@@ -139,7 +139,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'float64',
+      'type' => 'float64',
       'value' => 42949672.0
     )
   end
@@ -152,7 +152,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_0',
+      'type' => 'rec_0',
       'value' => [1, 2, -3]
     )
   end
@@ -165,7 +165,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_1',
+      'type' => 'rec_1',
       'value' => [1.0, 2.0, -3.0]
     )
   end
@@ -178,7 +178,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_2',
+      'type' => 'rec_2',
       'value' => { '_1191633330_'=>1.0, '_1191633331_'=>2.0 }
     )
   end
@@ -191,7 +191,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_3',
+      'type' => 'rec_3',
       'value' => { '_1191633330_'=>1, '_1191633331_'=>2 }
     )
   end
@@ -204,7 +204,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'principal',
+      'type' => 'principal',
       'value' => 'aaaaa-aa'
     )
   end
@@ -217,7 +217,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'principal',
+      'type' => 'principal',
       'value' => 'h4shw-tywvx-l2ql2-mzsjh-ym5d3-5r65b-zogwd-atf22-43k44-jnv4c-wae'
     )
   end
@@ -230,7 +230,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_4',
+      'type' => 'rec_4',
       'value' => [1]
     )
   end
@@ -243,7 +243,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_5',
+      'type' => 'rec_5',
       'value' => [456.123]
     )
   end
@@ -252,11 +252,11 @@ describe IcAgent::Candid do
     params = [{ 'type': IcAgent::Candid::BaseTypes.variant({ 'ok' => IcAgent::Candid::BaseTypes.text, 'err' => IcAgent::Candid::BaseTypes.text }), 'value': { 'ok' => 'succ' } }]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql('4449444c016b029cc20171e58eb402710100000473756363')
-    
+
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_6',
+      'type' => 'rec_6',
       'value' => { '_24860_'=>'succ' }
     )
   end
@@ -265,12 +265,12 @@ describe IcAgent::Candid do
     params = [{ 'type': IcAgent::Candid::BaseTypes.variant({ 'ok' => IcAgent::Candid::BaseTypes.text, 'err' => IcAgent::Candid::BaseTypes.text }), 'value': { 'err' => 'fail' } }]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql('4449444c016b029cc20171e58eb40271010001046661696c')
-    
+
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_7',
-      'value' =>  { '_5048165_'=>'fail' }
+      'type' => 'rec_7',
+      'value' => { '_5048165_'=>'fail' }
     )
   end
 
@@ -282,7 +282,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_8',
+      'type' => 'rec_8',
       'value' => [123456, 'terry.tu']
     )
   end
@@ -295,7 +295,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_9',
+      'type' => 'rec_9',
       'value' => ['expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae', 'terry']
     )
   end
@@ -308,7 +308,7 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type'  => 'rec_11',
+      'type' => 'rec_11',
       'value' => 'expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae'
     )
   end
