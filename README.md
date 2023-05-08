@@ -27,8 +27,8 @@ Create an instance:
 
 ```ruby
 require "lib/ic_agent/principal"
-p = IcAgent::Principal() # default is management canister id `aaaaa-aa`
-p1 = IcAgent::Principal(bytes=b'') # create an instance from bytes
+p = IcAgent::Principal.new # default is management canister id `aaaaa-aa`
+p1 = IcAgent::Principal.new(bytes: '') # create an instance from bytes
 p2 = IcAgent::Principal.anonymous() # create anonymous principal
 p3 = IcAgent::Principal.self_authenticating(pubkey) # create a principal from public key
 p4 = IcAgent::Principal.from_str('aaaaa-aa') # create an instance from string
@@ -123,6 +123,44 @@ result = agent.update_raw("gvbup-jyaaa-aaaah-qcdwa-cai", "transfer", IcAgent::Ca
 
 ```
 bundle exec rspec  
+```
+
+## Docker
+
+1. update to latest image
+
+`docker pull tuminfei1981/ruby_ic_agent:latest`
+
+2. Run image:
+
+`docker run -it tuminfei1981/ruby_ic_agent:latest`
+
+This  will enter the container with a linux shell opened.
+
+```shell
+/usr/src/app # 
+```
+
+3. Type `rspec` to run all tests
+
+```shell
+/usr/src/app # bundle exec rspec
+.............................
+
+Finished in 5.56 seconds (files took 0.12067 seconds to load)
+29 examples, 0 failures
+
+```
+
+4. Or, type `./bin/console` to enter the ruby interactive environment and run any ic_agent code
+
+```shell
+/usr/src/app # ./bin/console
+[1] pry(main)> p = IcAgent::Principal.new
+=> #<IcAgent::Principal:0x000000013a54a548 @bytes="", @hex="", @is_principal=true, @len=0>
+[2] pry(main)> p.to_s
+=> "aaaaa-aa"
+[3] pry(main)>
 ```
 
 ## Development

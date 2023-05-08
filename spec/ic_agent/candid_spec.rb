@@ -152,7 +152,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_0',
       'value' => [1, 2, -3]
     )
   end
@@ -165,7 +164,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_1',
       'value' => [1.0, 2.0, -3.0]
     )
   end
@@ -178,7 +176,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_2',
       'value' => { '_1191633330_'=>1.0, '_1191633331_'=>2.0 }
     )
   end
@@ -191,7 +188,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_3',
       'value' => { '_1191633330_'=>1, '_1191633331_'=>2 }
     )
   end
@@ -230,7 +226,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_4',
       'value' => [1]
     )
   end
@@ -243,7 +238,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_5',
       'value' => [456.123]
     )
   end
@@ -256,7 +250,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_6',
       'value' => { '_24860_'=>'succ' }
     )
   end
@@ -269,7 +262,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_7',
       'value' => { '_5048165_'=>'fail' }
     )
   end
@@ -282,7 +274,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_8',
       'value' => [123456, 'terry.tu']
     )
   end
@@ -295,7 +286,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_9',
       'value' => ['expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae', 'terry']
     )
   end
@@ -308,7 +298,6 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-      'type' => 'rec_11',
       'value' => 'expmt-gtxsw-inftj-ttabj-qhp5s-nozup-n3bbo-k7zvn-dg4he-knac3-lae'
     )
   end
