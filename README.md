@@ -50,7 +50,8 @@ Create an instance:
 ```ruby
 require "lib/ic_agent/identity"
 i = IcAgent::Identity.new # create an identity instance, key is randomly generated
-i1 = IcAgent::Identity.new(privkey = "833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42") # create an instance from private key
+i1 = IcAgent::Identity.new(privkey = '833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42') # create an instance from private key
+i2 = IcAgent::Identity.new(privkey = '833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42', type = 'secp256k1')
 ```
 
 Sign a message and Verify:

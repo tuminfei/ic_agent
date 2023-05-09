@@ -3,6 +3,7 @@ require 'json'
 require 'ecdsa'
 require 'bitcoin/trezor/mnemonic'
 require 'ed25519'
+require 'rbsecp256k1'
 require 'ctf_party'
 
 module IcAgent
@@ -17,22 +18,19 @@ module IcAgent
       end
       @key_type = type
       if type == 'secp256k1'
-        group = ECDSA::Group::Secp256k1
-        if privkey.length > 0
-          @sk = privkey.to_i
-        else
-          @sk = 1 + SecureRandom.random_number(group.order - 1)
-        end
-        @privkey = ECDSA::Format::IntegerOctetString.encode(@sk, 32).unpack1('H*')
-        @vk = group.generator.multiply_by_scalar(@sk)
-        @pubkey = ECDSA::Format::PointOctetString.encode(@vk, compression: true).unpack1('H*')
-        @der_pubkey = ECDSA::Format::PointOctetString.encode(@vk, compression: false)
+        data = privkey.length > 0 ? privkey : Random.new.bytes(32)
+        @sk = Secp256k1::PrivateKey.from_data(data)
+        @privkey = @sk.data.str2hex
+        context = Secp256k1::Context.create
+        @vk = context.key_pair_from_private_key(data)
+        @pubkey = @vk.public_key.uncompressed.str2hex
+        @der_pubkey = "#{IcAgent::IC_PUBKEY_SECP_DER_HERD}#{@pubkey}".hex2str
       elsif type == 'ed25519'
         @sk = privkey.length > 0 ? Ed25519::SigningKey.new(privkey) : Ed25519::SigningKey.generate
         @privkey = @sk.keypair.unpack1('H*')
         @vk = @sk.verify_key
         @pubkey = @vk.to_bytes.unpack1('H*')
-        @der_pubkey = "#{IcAgent::IC_PUBKEY_DER_HERD}#{@vk.to_bytes.unpack1('H*')}".hex2str
+        @der_pubkey = "#{IcAgent::IC_PUBKEY_ED_DER_HEAD}#{@vk.to_bytes.unpack1('H*')}".hex2str
       else
         raise 'unsupported identity type'
       end
@@ -53,7 +51,8 @@ module IcAgent
         sig = @sk.sign(msg)
         [@der_pubkey, sig]
       elsif @key_type == 'secp256k1'
-        sig = @sk.sign(msg, digest: Digest::SHA256)
+        context = Secp256k1::Context.create
+        sig = context.sign(@sk, Digest::SHA256.digest(msg)).compact
         [@der_pubkey, sig]
       end
     end

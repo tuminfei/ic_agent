@@ -10,6 +10,7 @@ PATH
       ed25519 (~> 1.3)
       faraday (~> 2.7)
       leb128 (~> 1.0)
+      rbsecp256k1 (~> 6.0)
       ruby-enum (~> 0.9.0)
 
 GEM
@@ -43,10 +44,16 @@ GEM
       concurrent-ruby (~> 1.0)
     leb128 (1.0.0)
     method_source (1.0.0)
+    mini_portile2 (2.8.2)
+    pkg-config (1.5.1)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
     rake (13.0.6)
+    rbsecp256k1 (6.0.0)
+      mini_portile2 (~> 2.8)
+      pkg-config (~> 1.5)
+      rubyzip (~> 2.3)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
@@ -63,6 +70,7 @@ GEM
     ruby-enum (0.9.0)
       i18n
     ruby2_keywords (0.0.5)
+    rubyzip (2.3.2)
     scrypt (3.0.7)
       ffi-compiler (>= 1.0, < 2.0)
 
@@ -82,6 +90,7 @@ DEPENDENCIES
   leb128 (~> 1.0)
   pry
   rake (~> 13.0)
+  rbsecp256k1 (~> 6.0)
   rspec (~> 3.2)
   ruby-enum (~> 0.9.0)
 

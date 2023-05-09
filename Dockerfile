@@ -1,6 +1,6 @@
 FROM ruby:2.7.8-alpine3.16
 
-ENV BUILD_PACKAGES curl-dev build-base
+ENV BUILD_PACKAGES curl-dev build-base build-essential automake pkg-config libtool libffi-dev libssl-dev libgmp-dev python3-dev
 
 RUN apk update && \
     apk upgrade && \
