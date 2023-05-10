@@ -37,7 +37,7 @@ module IcAgent
       path = ['canister', Principal.from_str(canister_id).bytes, 'controllers']
       cert = agent.read_state_raw(canister_id, [path])
       controllers = Certificate.lookup(path, cert)
-      CBOR.decode(controllers).map { |item| Principal.new(bytes: item) }
+      CBOR.decode(controllers).value.map { |item| Principal.new(bytes: item) }
     end
   end
 end

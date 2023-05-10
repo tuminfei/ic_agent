@@ -21,11 +21,21 @@ describe IcAgent::SyetemState do
     expect(subnet_public_key).to eql(@subnet_key)
   end
 
-  it 'IcAgent::SyetemState subnet_public_key call' do
+  it 'IcAgent::SyetemState subnet_canister_ranges call' do
     subnet_canister_ranges = IcAgent::SyetemState.subnet_canister_ranges(@agent, "gvbup-jyaaa-aaaah-qcdwa-cai", "pjljw-kztyl-46ud4-ofrj6-nzkhm-3n4nt-wi3jt-ypmav-ijqkt-gjf66-uae")
     expect(subnet_canister_ranges[0].size).to eql(2)
     expect(subnet_canister_ranges[0][0].to_s).to eql("ywrdt-7aaaa-aaaah-qaaaa-cai")
     expect(subnet_canister_ranges[0][1].to_s).to eql("e5xzy-miaaa-aaaah-7777q-cai")
+  end
+
+  it 'IcAgent::SyetemState canister_module_hash call' do
+    canister_module_hash = IcAgent::SyetemState.canister_module_hash(@agent, "gvbup-jyaaa-aaaah-qcdwa-cai")
+    expect(canister_module_hash).to eql("eb2dc31abb598a84877e00eec83c305eea1c98108550b3d7e7be8ec7bc84b045")
+  end
+
+  it 'IcAgent::SyetemState canister_controllers call' do
+    canister_controllers = IcAgent::SyetemState.canister_controllers(@agent, "sxhuu-qqaaa-aaaai-qbbcq-cai")
+    expect(canister_controllers[0].to_s).to eql("sqgsa-5iaaa-aaaai-qbbca-cai")
   end
 end
 
