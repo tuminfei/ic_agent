@@ -120,6 +120,19 @@ params = [
 result = agent.update_raw("gvbup-jyaaa-aaaah-qcdwa-cai", "transfer", IcAgent::Candid.encode(params))
 ```
 
+#### 6. Read System State
+
+Create an instance:
+
+```ruby
+# Identity and Client are dependencies of Agent
+iden = IcAgent::Identity.new
+client = IcAgent::Client.new
+agent = IcAgent::Agent.new(iden, client)
+
+time = IcAgent::SyetemState.time(agent, "gvbup-jyaaa-aaaah-qcdwa-cai")
+```
+
 ## UNIT TEST
 
 ```
