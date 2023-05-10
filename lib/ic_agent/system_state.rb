@@ -16,21 +16,21 @@ module IcAgent
       path = ['subnet', Principal.from_str(subnet_id).bytes, 'public_key']
       cert = agent.read_state_raw(canister_id, [path])
       pubkey = Certificate.lookup(path, cert)
-      pubkey.unpack1('H*')
+      pubkey.str2hex
     end
 
     def self.subnet_canister_ranges(agent, canister_id, subnet_id)
       path = ['subnet', Principal.from_str(subnet_id).bytes, 'canister_ranges']
       cert = agent.read_state_raw(canister_id, [path])
       ranges = Certificate.lookup(path, cert)
-      CBOR.decode(ranges).map { |range| range.map { |item| Principal.new(bytes: item) } }
+      CBOR.decode(ranges).value.map { |range| range.map { |item| Principal.new(bytes: item) } }
     end
 
     def self.canister_module_hash(agent, canister_id)
       path = ['canister', Principal.from_str(canister_id).bytes, 'module_hash']
       cert = agent.read_state_raw(canister_id, [path])
       module_hash = Certificate.lookup(path, cert)
-      module_hash.unpack1('H*')
+      module_hash.str2hex
     end
 
     def self.canister_controllers(agent, canister_id)
