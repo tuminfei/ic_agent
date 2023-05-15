@@ -1,0 +1,66 @@
+grammar DIDGrammar
+
+  rule body
+    ( service / comment / end_of_line )* <IcAgent::Ast::Nodes::DIDFile>
+  end
+
+  rule comment
+    space? '#' space? rest_of_line <IcAgent::Ast::Nodes::Comment>
+  end
+
+  rule service
+    "service" space? ":" space? "(" ic_service_name ")" space? "->" space? "{" end_of_line service_methods "}"  <IcAgent::Ast::Nodes::Service>
+  end
+
+  rule ic_service_name
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceName>
+  end
+
+  rule service_methods
+    (service_item)+ <IcAgent::Ast::Nodes::IcServiceMethods>
+  end
+
+  rule service_item
+    space? service_method_name space? ":" space? "(" service_method_params ")" space? "->" space? "(" service_method_return_type ")" space? method_query ';' end_of_line? <IcAgent::Ast::Nodes::IcServiceItem>
+  end
+
+  rule service_method_params
+    words
+  end
+
+  rule service_method_return_type
+    words
+  end
+
+  rule method_query
+    words
+  end
+
+  rule words
+    [a-zA-Z_] [a-zA-Z0-9_]*
+  end
+
+  rule service_method_name
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodName>
+  end
+
+  rule string_without_spaces
+    [\S]* <IcAgent::Ast::Nodes::StringLiteral>
+  end
+
+  rule rest_of_line
+    [^\n]* <IcAgent::Ast::Nodes::StringLiteral>
+  end
+
+  rule end_of_line
+    [\n]+
+  end
+
+  rule space
+    [\s]+
+  end
+
+  rule start_space
+    [^\s]+
+  end
+end
