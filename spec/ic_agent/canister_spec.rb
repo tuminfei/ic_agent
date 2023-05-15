@@ -1,28 +1,47 @@
 require 'spec_helper'
+require 'did_parser'
+require 'byebug'
 
-describe IcAgent::Agent do
-  it 'IcAgent::Agent call' do
-    iden = IcAgent::Identity.new(privkey = '833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42')
+describe IcAgent::Canister do
+  before(:all) do
+    iden = IcAgent::Identity.new
     client = IcAgent::Client.new
-    agent = IcAgent::Agent.new(iden, client)
+    @agent = IcAgent::Agent.new(iden, client)
+    @subnet_key = '308182301d060d2b0601040182dc7c0503010201060c2b0601040182dc7c05030201036100b31b406c9f6648695a88154ae2e4f5fe87883d4ad81c2844c5571b2d91d401cdd40836e763a7c18dccb84629b0d808f7142c3175bc8231dc09bd53637efd6f2568801385ec973d34e6eef9c8c8280a9f4a114163a43a8540941ba367f0c7cb28'
+    a = IcAgent::Ast::Parser.new
+    @gov_didl = <<~DIDL_DOC
+# this is a comment1
+service : (Governance) -> {
+  update1_node_provider : (UpdateNodeProvider1) -> (Result1) query;
+  update2_node_provider : (UpdateNodeProvider2) -> (Result2) query;
+  update3_node_provider : (UpdateNodeProvider3) -> (Result3) query;
+}
+# this is a comment2
+    DIDL_DOC
+    tree = a.parse(@gov_didl)
 
-    name = agent.query_raw('gvbup-jyaaa-aaaah-qcdwa-cai', 'name', IcAgent::Candid.encode([]))
-    expect(name).to include('type' => 'text', 'value' => 'XTC Test')
+    @pp = <<~DOCKFILE
+FROM jeremiahishere/sample
+
+MAINTAINER Jeremiah Hemphill <jeremiah@cloudspace.com>
+
+RUN echo 'hello world'
+RUN['echo', 'hello world']
+    DOCKFILE
   end
 
-  it 'IcAgent::Agent call' do
-    iden = IcAgent::Identity.new(privkey = '833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42')
-    client = IcAgent::Client.new
-    agent = IcAgent::Agent.new(iden, client)
+  it 'IcAgent::Canister call' do
+    # didl = DIDParser::Parser.parse(@gov_didl)
+    # byebug
+    # puts didl.actor
+    #
+    Treetop.load(File.expand_path(File.join(File.dirname(__FILE__), '../../lib/ic_agent/ast/', 'did_grammar.treetop')))
 
-    params = [
-      { 'type': IcAgent::Candid::BaseTypes.principal, 'value': 'aaaaa-aa' },
-      { 'type': IcAgent::Candid::BaseTypes.nat, 'value': 10000000000 }
-    ]
-    result = agent.update_raw('gvbup-jyaaa-aaaah-qcdwa-cai', 'transfer', IcAgent::Candid.encode(params))
+    parser = DIDGrammarParser.new
 
-    expect(result.size).to eql(1)
-    expect(result[0]).to include('type' => 'rec_0')
+    parsed = parser.parse(@gov_didl)
+    byebug
+    pp parsed
   end
 end
 

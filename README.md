@@ -135,6 +135,11 @@ time = IcAgent::SyetemState.time(agent, "gvbup-jyaaa-aaaah-qcdwa-cai")
 subnet_public_key = IcAgent::SyetemState.subnet_public_key(agent, "gvbup-jyaaa-aaaah-qcdwa-cai", "pjljw-kztyl-46ud4-ofrj6-nzkhm-3n4nt-wi3jt-ypmav-ijqkt-gjf66-uae")
 ```
 
+#### 7. Canister
+
+Create a canister instance with candid interface file and canister id, and call canister method with canister instance:
+
+
 ## UNIT TEST
 
 ```

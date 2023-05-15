@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'treetop'
+
 require_relative 'ic_agent/version'
 require_relative 'ic_agent/principal'
 require_relative 'ic_agent/identity'
@@ -9,6 +11,12 @@ require_relative 'ic_agent/candid'
 require_relative 'ic_agent/agent'
 require_relative 'ic_agent/certificate'
 require_relative 'ic_agent/system_state'
+require_relative 'ic_agent/canister'
+
+require_relative 'ic_agent/ast/nodes/named_nodes'
+require_relative 'ic_agent/ast/nodes/string_literal'
+require_relative 'ic_agent/ast/parser'
+require_relative 'ic_agent/ast/writer'
 
 module IcAgent
   class Error < StandardError; end

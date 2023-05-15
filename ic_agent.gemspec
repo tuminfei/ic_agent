@@ -33,17 +33,17 @@ Gem::Specification.new do |spec|
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
-
   spec.add_dependency 'base32', '~> 0.3.4'
   spec.add_dependency 'bitcoin-ruby', '~> 0.0.20'
-  spec.add_dependency 'rbsecp256k1', '~> 6.0'
   spec.add_dependency 'cbor', '~> 0.5.9.6'
   spec.add_dependency 'ctf-party', '~> 2.3'
   spec.add_dependency 'ecdsa', '~> 1.2'
   spec.add_dependency 'ed25519', '~> 1.3'
   spec.add_dependency 'faraday', '~> 2.7'
   spec.add_dependency 'leb128', '~> 1.0'
+  spec.add_dependency 'rbsecp256k1', '~> 6.0'
   spec.add_dependency 'ruby-enum', '~> 0.9.0'
+  spec.add_dependency 'treetop', '~> 1.6'
 
   spec.add_development_dependency 'byebug', '~> 11.1'
   spec.add_development_dependency 'pry'
