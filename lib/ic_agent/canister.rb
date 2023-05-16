@@ -1,5 +1,3 @@
-require 'did_parser'
-
 module IcAgent
   class Canister
     def initialize(agent, canister_id, candid=nil)

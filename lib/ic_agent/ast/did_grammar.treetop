@@ -21,7 +21,7 @@ grammar DIDGrammar
   end
 
   rule service_item
-    space? service_method_name space? ":" space? "(" service_method_params ")" space? "->" space? "(" service_method_return_type ")" space? method_query ';' end_of_line? <IcAgent::Ast::Nodes::IcServiceItem>
+    space? service_method_name space? ":" space? "(" service_method_params? ")" space? "->" space? "(" service_method_return_type ")" space? method_query? ';' end_of_line? <IcAgent::Ast::Nodes::IcServiceItem>
   end
 
   rule service_method_params
