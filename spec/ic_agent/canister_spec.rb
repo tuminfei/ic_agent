@@ -31,7 +31,7 @@ describe IcAgent::Canister do
 
   it 'IcAgent::Canister call' do
     parser = IcAgent::Ast::Parser.new
-    tree = parser.parse(@gov_didl)
+    parser.parse(@gov_didl)
   end
 end
 

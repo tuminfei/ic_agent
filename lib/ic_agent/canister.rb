@@ -15,68 +15,49 @@ module IcAgent
         raise BaseException, "canister #{@canister_id} has no __get_candid_interface_tmp_hack method."
       end
 
-      input_stream = DIDParser::Parser.lexer(@candid)
-      lexer = DIDLexer.new(input_stream)
-      token_stream = Antlr4::CommonTokenStream.new(lexer)
-      parser = DIDParser.new(token_stream)
-      tree = parser.program
+      parser = IcAgent::Ast::Parser.new
+      parser.parse(@candid)
 
-      emitter = DIDEmitter.new
-      walker = Antlr4::Runtime::Tree::ParseTreeWalker.new
-      walker.walk(emitter, tree)
+      ic_service_methods = parser.ic_service_methods
+      ic_service_methods.each do |item|
+        service_method = item.to_obj
+        method_name = service_method['ic_service_method_name']
+        anno = service_method['ic_service_method_query']
+        args = service_method['ic_service_method_params']
+        rets = service_method['ic_service_method_return']
 
-      @actor = emitter.get_actor
-
-      @actor['methods'].each do |name, method|
-        raise TypeError, 'method must be FuncClass' unless method.is_a?(FuncClass)
-        anno = method.annotations.empty? ? nil : method.annotations[0]
-        method_obj = CaniterMethod.new(agent, canister_id, name, method.argTypes, method.retTypes, anno)
-        instance_variable_set("@#{name}", method_obj)
-        self.class.send(:attr_accessor, name)
+        add_caniter_method(method_name, agent, canister_id, name, args, rets, anno)
       end
     end
   end
 
-  class CaniterMethod
-    def initialize(agent, canister_id, name, args, rets, anno=nil)
-      @agent = agent
-      @canister_id = canister_id
-      @name = name
-      @args = args
-      @rets = rets
+  def self.add_caniter_method(method_name, agent, canister_id, name, args, rets, anno=nil)
+    @agent = agent
+    @canister_id = canister_id
+    @name = name
+    @args = args
+    @rets = rets
+    @anno = anno
 
-      @anno = anno
-    end
-
-    def call(*args, **kwargs)
+    define_method(method_name) do
       if args.length != @args.length
         raise ArgumentError, 'Arguments length not match'
       end
+
       arguments = []
       args.each_with_index do |arg, i|
         arguments << { 'type' => @args[i], 'value' => arg }
       end
 
       effective_canister_id = @canister_id == 'aaaaa-aa' && args.length > 0 && args[0].is_a?(Hash) && args[0].key?('canister_id') ? args[0]['canister_id'] : @canister_id
-      if @anno == 'query'
-        res = @agent.query_raw(
-          @canister_id,
-          @name,
-          encode(arguments),
-          @rets,
-          effective_canister_id
-        )
+      res = if @anno == 'query'
+        @agent.query_raw(@canister_id, @name, encode(arguments), @rets, effective_canister_id)
       else
-        res = @agent.update_raw(
-          @canister_id,
-          @name,
-          encode(arguments),
-          @rets,
-          effective_canister_id
-        )
+        @agent.update_raw(@canister_id, @name, encode(arguments), @rets, effective_canister_id)
       end
 
       return res unless res.is_a?(Array)
+
       res.map { |item| item['value'] }
     end
   end

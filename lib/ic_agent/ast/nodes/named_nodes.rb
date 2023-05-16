@@ -46,7 +46,7 @@ module IcAgent
       end
 
       class Service < NamedNode
-        def title; :dockerfile end
+        def title; :ic_service end
 
         def to_s
           elements_to_s
@@ -65,7 +65,7 @@ module IcAgent
 
       class IcServiceMethods < NamedNode
         def title
-          :ic_service_name
+          :ic_service_methods
         end
 
         def value
@@ -80,10 +80,18 @@ module IcAgent
       end
 
       class IcServiceItem < NamedNode
-        def title; :dockerfile end
+        def title; :ic_service_item end
 
         def to_s
           elements_to_s
+        end
+
+        def to_obj
+          obj = {}
+          elements.each do |element|
+            obj[element.title.to_s] = element.text_value
+          end
+          obj
         end
       end
 
@@ -100,6 +108,30 @@ module IcAgent
 
         def to_s
           "# #{elements[0].to_s}"
+        end
+      end
+
+      class IcServiceMethodParams < NamedNode
+        def title; :ic_service_method_params end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class IcServiceMethodReturn < NamedNode
+        def title; :ic_service_method_return end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class IcServiceMethodQuery < NamedNode
+        def title; :ic_service_method_query end
+
+        def to_s
+          elements_to_s
         end
       end
     end

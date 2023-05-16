@@ -25,15 +25,15 @@ grammar DIDGrammar
   end
 
   rule service_method_params
-    words
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodParams>
   end
 
   rule service_method_return_type
-    words
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodReturn>
   end
 
   rule method_query
-    words
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodQuery>
   end
 
   rule words
