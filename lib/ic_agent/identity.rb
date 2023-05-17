@@ -27,13 +27,20 @@ module IcAgent
         @der_pubkey = "#{IcAgent::IC_PUBKEY_SECP_DER_HERD}#{@pubkey}".hex2str
       elsif type == 'ed25519'
         @sk = privkey.length > 0 ? Ed25519::SigningKey.new(privkey) : Ed25519::SigningKey.generate
-        @privkey = @sk.keypair.unpack1('H*')
+        @privkey = @sk.keypair.unpack1('H*')[0..63]
         @vk = @sk.verify_key
         @pubkey = @vk.to_bytes.unpack1('H*')
         @der_pubkey = "#{IcAgent::IC_PUBKEY_ED_DER_HEAD}#{@vk.to_bytes.unpack1('H*')}".hex2str
       else
         raise 'unsupported identity type'
       end
+    end
+
+    def self.from_seed(mnemonic)
+      seed = Bitcoin::Trezor::Mnemonic.to_seed(mnemonic)
+      privkey = seed[0..63]
+      key_type = 'ed25519'
+      Identity.new(privkey = privkey, type = key_type)
     end
 
     def sender

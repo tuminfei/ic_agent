@@ -14,4 +14,11 @@ describe IcAgent::Identity do
     expect(iden.pubkey).to eql('048e24fd9654f12c793d3d376c15f7abe53e0fbd537884a3a98d10d2dc6d513b4e08dd453b73d6e06f5c543a4b6d0e9fa7cff4ffde6897ff64a1afd787d2b6f87c')
     expect(iden.sender.to_s).to eql('ogeza-v2sup-7el77-mls7v-kjxbs-tzekc-gywh3-dzikt-qisuu-xsc46-mqe')
   end
+
+  it "mnemonic IcAgent::Identity" do
+    mnemonic = 'fence dragon soft spoon embrace bronze regular hawk more remind detect slam'
+    iden = IcAgent::Identity.from_seed(mnemonic)
+    expect(iden.key_type).to eql('ed25519')
+    expect(iden.privkey).to eql('97cc884647e7e0ef58c36b57448269ba6a123521a7f234fa5fdc5816d824ef50')
+  end
 end
