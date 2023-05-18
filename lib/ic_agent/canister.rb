@@ -31,8 +31,9 @@ module IcAgent
       end
     end
 
-    def add_caniter_method(method_name, type_args, rets, anno=nil)
+    private
 
+    def add_caniter_method(method_name, type_args, rets, anno=nil)
       self.class.class_eval do
         define_method(method_name) do |*args|
           init_method_name = method_name
@@ -51,9 +52,9 @@ module IcAgent
 
           effective_canister_id = @canister_id == 'aaaaa-aa' && init_method_args.length > 0 && init_method_args[0].is_a?(Hash) && init_method_args[0].key?('canister_id') ? init_method_args[0]['canister_id'] : @canister_id
           res = if init_method_anno == 'query'
-                  @agent.query_raw(@canister_id, init_method_name, encode(arguments), init_method_rets, effective_canister_id)
+                  @agent.query_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_rets, effective_canister_id)
                 else
-                  @agent.update_raw(@canister_id, init_method_name, encode(arguments), init_method_rets, effective_canister_id)
+                  @agent.update_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_rets, effective_canister_id)
                 end
 
           return res unless res.is_a?(Array)
