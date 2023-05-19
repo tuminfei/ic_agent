@@ -5,6 +5,7 @@ require 'bitcoin/trezor/mnemonic'
 require 'ed25519'
 require 'rbsecp256k1'
 require 'ctf_party'
+require 'base64'
 
 module IcAgent
   class Identity
@@ -73,7 +74,12 @@ module IcAgent
     end
 
     def to_pem
-      OpenSSL::PKey::EC.new(@sk).to_pem
+      der = @key_type == 'secp256k1' ? "#{IcAgent::IC_PUBKEY_SECP_DER_HERD}#{@sk.data.unpack1('H*')}".hex2str : "#{IcAgent::IC_PUBKEY_ED_DER_HEAD}#{@sk.to_bytes.unpack1('H*')}".hex2str
+      b64 = Base64.strict_encode64(der)
+      lines = ["-----BEGIN PRIVATE KEY-----\n"]
+      lines.concat(b64.chars.each_slice(64).map(&:join).map { |line| "#{line}\n" })
+      lines << "-----END PRIVATE KEY-----\n"
+      lines.join
     end
 
     def to_s
