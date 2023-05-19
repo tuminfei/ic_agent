@@ -25,7 +25,7 @@ grammar DIDGrammar
   end
 
   rule service_method_params
-    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodParams>
+    param_element (", " param_element)* <IcAgent::Ast::Nodes::IcServiceMethodParams>
   end
 
   rule service_method_return_type
@@ -38,6 +38,10 @@ grammar DIDGrammar
 
   rule words
     [a-zA-Z_] [a-zA-Z0-9_]*
+  end
+
+  rule param_element
+    [a-zA-Z0-9_ ]+
   end
 
   rule service_method_name

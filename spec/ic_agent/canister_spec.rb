@@ -10,7 +10,7 @@ describe IcAgent::Canister do
     @gov_canister_id = 'rrkah-fqaaa-aaaaa-aaaaq-cai'
     @gov_didl = <<~DIDL_DOC
       service : (Governance) -> {
-        claim_gtc_neurons : (principal) -> (Result) query;
+        claim_gtc_neurons : (principal, vec NeuronId) -> (Result) query;
         claim_or_refresh_neuron_from_account : (ClaimOrRefreshNeuronFromAccount) -> (ClaimOrRefreshNeuronFromAccountResponse) query;
         get_full_neuron : (nat64) -> (Result_2) query;
         get_full_neuron_by_id_or_subaccount : (NeuronIdOrSubaccount) -> (Result_2);
@@ -24,7 +24,7 @@ describe IcAgent::Canister do
         list_neurons : (ListNeurons) -> (ListNeuronsResponse) query;
         list_proposals : (ListProposalInfo) -> (ListProposalInfoResponse) query;
         manage_neuron : (ManageNeuron) -> (ManageNeuronResponse) query;
-        transfer_gtc_neuron : (NeuronId) -> (Result) query;
+        transfer_gtc_neuron : (NeuronId, NeuronId) -> (Result) query;
         update_node_provider : (UpdateNodeProvider) -> (Result) query;
       }
     DIDL_DOC
