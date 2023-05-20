@@ -9,6 +9,10 @@ describe IcAgent::Canister do
     @subnet_key = '308182301d060d2b0601040182dc7c0503010201060c2b0601040182dc7c05030201036100b31b406c9f6648695a88154ae2e4f5fe87883d4ad81c2844c5571b2d91d401cdd40836e763a7c18dccb84629b0d808f7142c3175bc8231dc09bd53637efd6f2568801385ec973d34e6eef9c8c8280a9f4a114163a43a8540941ba367f0c7cb28'
     @gov_canister_id = 'rrkah-fqaaa-aaaaa-aaaaq-cai'
     @gov_didl = <<~DIDL_DOC
+      // type
+      type Amount = record { e8s : nat64 };
+      type ApproveGenesisKyc = record { principals : vec principal; name : text; name : text };
+      // service
       service : (Governance) -> {
         claim_gtc_neurons : (principal, vec NeuronId) -> (Result) query;
         claim_or_refresh_neuron_from_account : (ClaimOrRefreshNeuronFromAccount) -> (ClaimOrRefreshNeuronFromAccountResponse) query;

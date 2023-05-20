@@ -1,15 +1,36 @@
 grammar DIDGrammar
 
   rule body
-    ( service / comment / end_of_line )* <IcAgent::Ast::Nodes::DIDFile>
+    ( type_declaration / service_declaration / comment / end_of_line )* <IcAgent::Ast::Nodes::DIDFile>
+  end
+
+  rule base_type
+    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' /
+    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func'
+  end
+
+  rule type_declaration
+    "type" space type_name space "=" space base_type space "{" type_body "};" <IcAgent::Ast::Nodes::TypeDeclaration>
+  end
+
+  rule type_name
+    [a-zA-Z0-9]+ <IcAgent::Ast::Nodes::TypeName>
+  end
+
+  rule type_body
+    [a-zA-Z0-9_:; ]+ <IcAgent::Ast::Nodes::TypeBody>
+  end
+
+  rule body_item_element
+    [a-zA-Z0-9 ]+
   end
 
   rule comment
-    space? '#' space? rest_of_line <IcAgent::Ast::Nodes::Comment>
+    space? '//' space? rest_of_line <IcAgent::Ast::Nodes::Comment>
   end
 
-  rule service
-    "service" space? ":" space? "(" ic_service_name ")" space? "->" space? "{" end_of_line service_methods "}"  <IcAgent::Ast::Nodes::Service>
+  rule service_declaration
+    "service" space ":" space "(" ic_service_name ")" space? "->" space? "{" end_of_line service_methods "}"  <IcAgent::Ast::Nodes::Service>
   end
 
   rule ic_service_name

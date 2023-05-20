@@ -22,7 +22,9 @@ module IcAgent
       end
 
       class Instruction < NamedNode
-        def title; :instruction end
+        def title
+          :instruction
+        end
 
         def to_s
           elements_to_s
@@ -30,7 +32,9 @@ module IcAgent
       end
 
       class Comment < NamedNode
-        def title; :comment end
+        def title
+          :comment
+        end
 
         def to_s
           "# #{elements[0].to_s}"
@@ -38,7 +42,79 @@ module IcAgent
       end
 
       class DIDFile < NamedNode
-        def title; :did_file end
+        def title
+          :did_file
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class TypeDeclaration < NamedNode
+        def title
+          :type_declaration
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class BaseType < NamedNode
+        def title
+          :base_type
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class TypeName < NamedNode
+        def title
+          :type_name
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class TypeBody < NamedNode
+        def title
+          :type_body
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class TypeBodyItem < NamedNode
+        def title
+          :type_body_item
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class TypeBodyItemName < NamedNode
+        def title
+          :type_body_item
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class TypeBodyItemValue < NamedNode
+        def title
+          :type_body_item
+        end
 
         def to_s
           elements_to_s
@@ -46,7 +122,9 @@ module IcAgent
       end
 
       class Service < NamedNode
-        def title; :ic_service end
+        def title
+          :ic_service
+        end
 
         def to_s
           elements_to_s
@@ -80,7 +158,9 @@ module IcAgent
       end
 
       class IcServiceItem < NamedNode
-        def title; :ic_service_item end
+        def title
+          :ic_service_item
+        end
 
         def to_s
           elements_to_s
@@ -96,7 +176,9 @@ module IcAgent
       end
 
       class IcServiceParam < NamedNode
-        def title; :ic_service_param end
+        def title
+          :ic_service_param
+        end
 
         def to_s
           "# #{elements[0].to_s}"
@@ -104,7 +186,9 @@ module IcAgent
       end
 
       class IcServiceName < NamedNode
-        def title; :ic_service_name end
+        def title
+          :ic_service_name
+        end
 
         def to_s
           "# #{elements[0].to_s}"
@@ -112,7 +196,9 @@ module IcAgent
       end
 
       class IcServiceMethodParams < NamedNode
-        def title; :ic_service_method_params end
+        def title
+          :ic_service_method_params
+        end
 
         def to_s
           elements_to_s
@@ -120,7 +206,9 @@ module IcAgent
       end
 
       class IcServiceMethodReturn < NamedNode
-        def title; :ic_service_method_return end
+        def title
+          :ic_service_method_return
+        end
 
         def to_s
           elements_to_s
@@ -128,7 +216,9 @@ module IcAgent
       end
 
       class IcServiceMethodQuery < NamedNode
-        def title; :ic_service_method_query end
+        def title
+          :ic_service_method_query
+        end
 
         def to_s
           elements_to_s
