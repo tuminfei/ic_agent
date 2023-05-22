@@ -101,6 +101,16 @@ module IcAgent
         end
       end
 
+      class TypeBodyItemObj < NamedNode
+        def title
+          :type_body_item_obj
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
       class TypeBodyItemName < NamedNode
         def title
           :type_body_item

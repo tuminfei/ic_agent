@@ -18,11 +18,27 @@ grammar DIDGrammar
   end
 
   rule type_body
-    [a-zA-Z0-9_:; ]+ <IcAgent::Ast::Nodes::TypeBody>
+    type_body_item* <IcAgent::Ast::Nodes::TypeBody>
+  end
+
+  rule type_body_item
+    body_item_element (';' space)* <IcAgent::Ast::Nodes::TypeBodyItem>
+  end
+
+  rule type_body_item_obj
+    body_item_element (';' space)* <IcAgent::Ast::Nodes::TypeBodyItem>
+  end
+
+  rule type_body_item_name
+    body_item_element
+  end
+
+  rule type_body_item_value
+    body_item_element
   end
 
   rule body_item_element
-    [a-zA-Z0-9 ]+
+    [a-zA-Z0-9_: ]+
   end
 
   rule comment
