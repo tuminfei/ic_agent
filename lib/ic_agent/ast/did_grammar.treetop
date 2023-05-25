@@ -14,7 +14,7 @@ grammar DIDGrammar
   end
 
   rule type_name
-    [a-zA-Z0-9]+ <IcAgent::Ast::Nodes::TypeName>
+    [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::TypeName>
   end
 
   rule type_body
