@@ -10,7 +10,7 @@ grammar DIDGrammar
   end
 
   rule type_declaration
-    "type" space type_name space "=" space base_type space "{" type_body "};" <IcAgent::Ast::Nodes::TypeDeclaration>
+    "type" space type_name space "=" space base_type space "{" end_of_line? type_body "};" <IcAgent::Ast::Nodes::TypeDeclaration>
   end
 
   rule type_name

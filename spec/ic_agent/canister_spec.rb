@@ -12,6 +12,18 @@ describe IcAgent::Canister do
       // type
       type Amount = record { e8s : nat64 };
       type ApproveGenesisKyc = record { principals : vec principal; name : text; name : text };
+      type Action = variant {
+        RegisterKnownNeuron : KnownNeuron;
+        ManageNeuron : ManageNeuron;
+        ExecuteNnsFunction : ExecuteNnsFunction;
+        RewardNodeProvider : RewardNodeProvider;
+        SetDefaultFollowees : SetDefaultFollowees;
+        RewardNodeProviders : RewardNodeProviders;
+        ManageNetworkEconomics : NetworkEconomics;
+        ApproveGenesisKyc : ApproveGenesisKyc;
+        AddOrRemoveNodeProvider : AddOrRemoveNodeProvider;
+        Motion : Motion;
+      };
       // service
       service : (Governance) -> {
         claim_gtc_neurons : (principal, vec NeuronId) -> (Result) query;
