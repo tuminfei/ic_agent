@@ -24,6 +24,13 @@ describe IcAgent::Canister do
         AddOrRemoveNodeProvider : AddOrRemoveNodeProvider;
         Motion : Motion;
       };
+      type ListProposalInfo = record {
+        include_reward_status : vec int32;
+        before_proposal : opt NeuronId;
+        limit : nat32;
+        exclude_topic : vec int32;
+        include_status : vec int32;
+      };
       // service
       service : (Governance) -> {
         claim_gtc_neurons : (principal, vec NeuronId) -> (Result) query;
@@ -53,6 +60,15 @@ describe IcAgent::Canister do
 
   it 'IcAgent::Canister call' do
     gov = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
+    res = gov.list_proposals(
+      {
+        'include_reward_status': [],
+        'before_proposal': [],
+        'limit': 100,
+        'exclude_topic': [],
+        'include_status': [1]
+      }
+    )
   end
 end
 

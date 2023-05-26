@@ -33,7 +33,7 @@ module IcAgent
 
     private
 
-    def add_caniter_method(method_name, type_args, rets, anno=nil)
+    def add_caniter_method(method_name, type_args, rets, anno = nil)
       self.class.class_eval do
         define_method(method_name) do |*args|
           init_method_name = method_name

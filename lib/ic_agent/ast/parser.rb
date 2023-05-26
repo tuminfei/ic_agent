@@ -36,12 +36,42 @@ module IcAgent
         nil
       end
 
+      def ic_types
+        type_arr = []
+        tree.elements.each do |ele|
+          type_arr << ele if ele.title == :type_declaration
+        end
+        type_arr
+      end
+
       def ic_service_methods
         ic_service_tree = ic_service
         unless ic_service_tree.empty?
           ic_service_tree.elements.each do |ele|
             return ele if ele.title == :ic_service_methods
           end
+        end
+        nil
+      end
+
+      def ic_type_name(ic_type)
+        ic_type.elements.each do |ele|
+          return ele.text_value if ele.title == :type_name
+        end
+        nil
+      end
+
+      def ic_type_names
+        names_arr = []
+        ic_types.each do |ic_type|
+          names_arr << ic_type_name(ic_type)
+        end
+        names_arr
+      end
+
+      def ic_type_by_name(type_name)
+        ic_types.each do |ic_type|
+          return ic_type if type_name == ic_type_name(ic_type)
         end
         nil
       end
