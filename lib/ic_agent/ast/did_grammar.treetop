@@ -10,7 +10,7 @@ grammar DIDGrammar
   end
 
   rule type_declaration
-    "type" space type_name space "=" space base_type space "{" end_of_line? type_body "};" <IcAgent::Ast::Nodes::TypeDeclaration>
+    "type" space type_name space "=" space type_input_base_type space "{" end_of_line? type_body "};" <IcAgent::Ast::Nodes::TypeDeclaration>
   end
 
   rule type_name
@@ -19,6 +19,10 @@ grammar DIDGrammar
 
   rule type_body
     type_body_item* <IcAgent::Ast::Nodes::TypeBody>
+  end
+
+  rule type_input_base_type
+      base_type+ <IcAgent::Ast::Nodes::TypeInputBaseType>
   end
 
   rule type_body_item

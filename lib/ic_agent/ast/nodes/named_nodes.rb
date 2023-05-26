@@ -56,8 +56,20 @@ module IcAgent
           :type_declaration
         end
 
+        def type_param_name
+          elements[0].text_value
+        end
+
+        def type_input_class
+          elements[1].text_value
+        end
+
+        def type_input_items
+          elements[2].elements
+        end
+
         def to_s
-          elements_to_s
+          text_value
         end
       end
 
@@ -74,6 +86,16 @@ module IcAgent
       class TypeName < NamedNode
         def title
           :type_name
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class TypeInputBaseType < NamedNode
+        def title
+          :type_input_base_type
         end
 
         def to_s
