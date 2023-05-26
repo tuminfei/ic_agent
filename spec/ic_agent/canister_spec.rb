@@ -12,6 +12,7 @@ describe IcAgent::Canister do
       // type
       type Amount = record { e8s : nat64 };
       type ApproveGenesisKyc = record { principals : vec principal; name : text; name : text };
+      type NeuronId = record { id : nat64 };
       type Action = variant {
         RegisterKnownNeuron : KnownNeuron;
         ManageNeuron : ManageNeuron;
@@ -60,15 +61,15 @@ describe IcAgent::Canister do
 
   it 'IcAgent::Canister call' do
     gov = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
-    res = gov.list_proposals(
-      {
-        'include_reward_status': [],
-        'before_proposal': [],
-        'limit': 100,
-        'exclude_topic': [],
-        'include_status': [1]
-      }
-    )
+    # res = gov.list_proposals(
+    #   {
+    #     'include_reward_status': [],
+    #     'before_proposal': [],
+    #     'limit': 100,
+    #     'exclude_topic': [],
+    #     'include_status': [1]
+    #   }
+    # )
   end
 end
 

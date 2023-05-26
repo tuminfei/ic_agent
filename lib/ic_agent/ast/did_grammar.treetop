@@ -26,19 +26,19 @@ grammar DIDGrammar
   end
 
   rule type_body_item
-    body_item_element (';' space)* <IcAgent::Ast::Nodes::TypeBodyItem>
+    type_body_item_obj (';' space)* <IcAgent::Ast::Nodes::TypeBodyItem>
   end
 
   rule type_body_item_obj
-    body_item_element (';' space)* <IcAgent::Ast::Nodes::TypeBodyItem>
+    type_body_item_name ':'? type_body_item_value? <IcAgent::Ast::Nodes::TypeBodyItemObj>
   end
 
   rule type_body_item_name
-    body_item_element
+    [a-zA-Z0-9_ ]+ <IcAgent::Ast::Nodes::TypeBodyItemName>
   end
 
   rule type_body_item_value
-    body_item_element
+    [a-zA-Z0-9_ ]+ <IcAgent::Ast::Nodes::TypeBodyItemValue>
   end
 
   rule body_item_element
