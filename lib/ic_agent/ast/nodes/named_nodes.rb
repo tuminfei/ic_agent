@@ -68,6 +68,22 @@ module IcAgent
           elements[2].elements
         end
 
+        def type_input_item_names
+          names = []
+          elements[2].elements.each do |ele|
+            names << ele.elements[0].elements[0].text_value.strip
+          end
+          names
+        end
+
+        def type_input_item_fields
+          fields = []
+          elements[2].elements.each do |ele|
+            fields << ele.elements[0].elements[1].text_value.strip.split(' ')
+          end
+          fields
+        end
+
         def to_s
           text_value
         end

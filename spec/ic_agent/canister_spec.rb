@@ -13,6 +13,7 @@ describe IcAgent::Canister do
       type Amount = record { e8s : nat64 };
       type ApproveGenesisKyc = record { principals : vec principal; name : text; name : text };
       type NeuronId = record { id : nat64 };
+      type ListProposalInfoResponse = record { proposal_info : vec ProposalInfo };
       type Action = variant {
         RegisterKnownNeuron : KnownNeuron;
         ManageNeuron : ManageNeuron;
@@ -34,6 +35,7 @@ describe IcAgent::Canister do
       };
       // service
       service : (Governance) -> {
+        list_proposals : (ListProposalInfo) -> (ListProposalInfoResponse) query;
         claim_gtc_neurons : (principal, vec NeuronId) -> (Result) query;
         claim_or_refresh_neuron_from_account : (ClaimOrRefreshNeuronFromAccount) -> (ClaimOrRefreshNeuronFromAccountResponse) query;
         get_full_neuron : (nat64) -> (Result_2) query;
@@ -46,7 +48,6 @@ describe IcAgent::Canister do
         get_proposal_info : (nat64) -> (ProposalInfo) query;
         list_known_neurons : () -> (ListKnownNeuronsResponse) query;
         list_neurons : (ListNeurons) -> (ListNeuronsResponse) query;
-        list_proposals : (ListProposalInfo) -> (ListProposalInfoResponse) query;
         manage_neuron : (ManageNeuron) -> (ManageNeuronResponse) query;
         transfer_gtc_neuron : (NeuronId, NeuronId) -> (Result) query;
         update_node_provider : (UpdateNodeProvider) -> (Result) query;
@@ -70,6 +71,19 @@ describe IcAgent::Canister do
     #     'include_status': [1]
     #   }
     # )
+    params = [{
+      'type': IcAgent::Candid::BaseTypes.record({ 'include_reward_status' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32),
+                                                  'before_proposal' => IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.nat64),
+                                                  'limit' => IcAgent::Candid::BaseTypes.nat32,
+                                                  'exclude_topic' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32),
+                                                  'include_status' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32) }),
+      'value': { 'include_reward_status' => [],
+                 'before_proposal' => [],
+                 'limit' => 100,
+                 'exclude_topic' => [],
+                 'include_status' => [] }
+    }]
+    data = IcAgent::Candid.encode(params)
   end
 end
 
