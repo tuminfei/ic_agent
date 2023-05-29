@@ -38,6 +38,8 @@ module IcAgent
     end
 
     PREFIX = 'DIDL'
+    SINGLE_TYPES = %w[null bool nat int nat8 nat16 nat32 nat64 int8 int16 int32 int64 float32 float64 text reserved empty principal]
+    MULTI_TYPES = %w[opt vec record variant func service]
 
     class TypeTable
       attr_accessor :typs, :idx
@@ -97,7 +99,7 @@ module IcAgent
       end
 
       def build_type_table(type_table)
-        if !type_table.has(self)
+        unless type_table.has(self)
           self._build_type_table_impl(type_table)
         end
       end

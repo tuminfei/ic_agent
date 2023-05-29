@@ -87,6 +87,15 @@ module IcAgent
         def to_s
           text_value
         end
+
+        def to_obj
+          {
+            'type_param_name' => type_param_name,
+            'type_input_class' => type_input_class,
+            'type_input_item_names' => type_input_item_names,
+            'type_input_item_fields' => type_input_item_fields
+          }
+        end
       end
 
       class BaseType < NamedNode

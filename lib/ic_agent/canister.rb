@@ -27,11 +27,31 @@ module IcAgent
         args = service_method['ic_service_method_params']
         rets = service_method['ic_service_method_return']
 
+        # args_arrs = service_params(parser, args)
+
         add_caniter_method(method_name, args, rets, anno)
       end
     end
 
     private
+
+    def service_params(parser, args_name, now_args = [], child_args = [])
+      input_body = parser.ic_type_by_name(args_name)
+      input_body_obj = input_body.to_obj
+      tree_code = now_args.size == 0 ? 'root' : args_name
+
+      if IcAgent::Candid::MULTI_TYPES.include? input_body_obj['type_input_class'] || child_args.length > 0
+        now_args << { tree_code => [input_body_obj['type_input_class'], input_body_obj['type_input_item_fields']] }
+        child_args = child_args + input_body_obj['type_input_item_fields'].flatten - IcAgent::Candid::SINGLE_TYPES - IcAgent::Candid::MULTI_TYPES
+        if child_args.length > 0
+          next_args_name = child_args.pop
+          return service_params(parser, next_args_name, now_args, child_args)
+        end
+      else
+        now_args << { tree_code => [input_body_obj['type_input_class'], nil] }
+      end
+      now_args
+    end
 
     def add_caniter_method(method_name, type_args, rets, anno = nil)
       self.class.class_eval do

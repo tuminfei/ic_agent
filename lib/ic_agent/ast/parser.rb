@@ -25,8 +25,8 @@ module IcAgent
       def clean_tree(root_node)
         return if root_node.elements.nil?
 
-        root_node.elements.delete_if {|node| node.class.name == "Treetop::Runtime::SyntaxNode" }
-        root_node.elements.each {|node| self.clean_tree(node) }
+        root_node.elements.delete_if { |node| node.class.name == 'Treetop::Runtime::SyntaxNode' }
+        root_node.elements.each { |node| self.clean_tree(node) }
       end
 
       def ic_service
@@ -42,6 +42,14 @@ module IcAgent
           type_arr << ele if ele.title == :type_declaration
         end
         type_arr
+      end
+
+      def ic_types_obj
+        obj_arr = []
+        ic_types.each do |ic_type|
+          obj_arr << ic_type.to_obj
+        end
+        obj_arr
       end
 
       def ic_service_methods
