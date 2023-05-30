@@ -14,6 +14,30 @@ describe IcAgent::Canister do
       type ApproveGenesisKyc = record { principals : vec principal; name : text; name : text };
       type NeuronId = record { id : nat64 };
       type ListProposalInfoResponse = record { proposal_info : vec ProposalInfo };
+      type Proposal = record {
+        url : text;
+        title : opt text;
+        action : opt Action;
+        summary : text;
+      };
+      type ProposalInfo = record {
+        id : opt NeuronId;
+        status : int32;
+        topic : int32;
+        failure_reason : opt GovernanceError;
+        ballots : vec TestInfo;
+        proposal_timestamp_seconds : nat64;
+        reward_event_round : nat64;
+        deadline_timestamp_seconds : opt nat64;
+        failed_timestamp_seconds : nat64;
+        reject_cost_e8s : nat64;
+        latest_tally : opt Tally;
+        reward_status : int32;
+        decided_timestamp_seconds : nat64;
+        proposal : opt Proposal;
+        proposer : opt NeuronId;
+        executed_timestamp_seconds : nat64;
+      };
       type Action = variant {
         RegisterKnownNeuron : KnownNeuron;
         ManageNeuron : ManageNeuron;

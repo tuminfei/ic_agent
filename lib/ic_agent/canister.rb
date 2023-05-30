@@ -19,6 +19,7 @@ module IcAgent
       parser.parse(@candid)
 
       ic_service_methods = parser.ic_service_methods.elements
+      ic_type_names = parser.ic_type_names
 
       ic_service_methods.each do |item|
         service_method = item.to_obj
@@ -27,15 +28,16 @@ module IcAgent
         args = service_method['ic_service_method_params']
         rets = service_method['ic_service_method_return']
 
-        # args_arrs = service_params(parser, args)
-
+        # args_arrs = service_params(parser, ic_type_names, args)
+        # rets_arrs = service_params(parser, ic_type_names, rets)
         add_caniter_method(method_name, args, rets, anno)
       end
     end
 
     private
 
-    def service_params(parser, args_name, now_args = {}, child_args = [])
+    def service_params(parser, ic_type_names, args_name, now_args = {}, child_args = [])
+      puts(args_name)
       input_body = parser.ic_type_by_name(args_name)
       input_body_obj = input_body.to_obj
       tree_code = now_args.key?('root') ? 'child' : 'root'
@@ -49,9 +51,14 @@ module IcAgent
         end
 
         child_args = child_args + input_body_obj['type_input_item_fields'].flatten - IcAgent::Candid::SINGLE_TYPES - IcAgent::Candid::MULTI_TYPES
+        child_args = child_args.uniq
+        # filter out non-existing types
+        lost_args = child_args - ic_type_names
+        child_args -= lost_args
+
         if child_args.length > 0
           next_args_name = child_args.pop
-          return service_params(parser, next_args_name, now_args, child_args)
+          return service_params(parser, ic_type_names, next_args_name, now_args, child_args)
         end
       else
         now_args[tree_code] = [input_body_obj['type_input_class'], nil]
