@@ -35,20 +35,26 @@ module IcAgent
 
     private
 
-    def service_params(parser, args_name, now_args = [], child_args = [])
+    def service_params(parser, args_name, now_args = {}, child_args = [])
       input_body = parser.ic_type_by_name(args_name)
       input_body_obj = input_body.to_obj
-      tree_code = now_args.size == 0 ? 'root' : args_name
+      tree_code = now_args.key?('root') ? 'child' : 'root'
 
       if IcAgent::Candid::MULTI_TYPES.include? input_body_obj['type_input_class'] || child_args.length > 0
-        now_args << { tree_code => [input_body_obj['type_input_class'], input_body_obj['type_input_item_fields']] }
+        if tree_code == 'root'
+          now_args[tree_code] = [input_body_obj['type_input_class'], input_body_obj['type_input_item_fields']]
+        else
+          now_args[tree_code] = {}
+          now_args[tree_code][args_name] = [input_body_obj['type_input_class'], input_body_obj['type_input_item_fields']]
+        end
+
         child_args = child_args + input_body_obj['type_input_item_fields'].flatten - IcAgent::Candid::SINGLE_TYPES - IcAgent::Candid::MULTI_TYPES
         if child_args.length > 0
           next_args_name = child_args.pop
           return service_params(parser, next_args_name, now_args, child_args)
         end
       else
-        now_args << { tree_code => [input_body_obj['type_input_class'], nil] }
+        now_args[tree_code] = [input_body_obj['type_input_class'], nil]
       end
       now_args
     end
@@ -72,9 +78,11 @@ module IcAgent
 
           effective_canister_id = @canister_id == 'aaaaa-aa' && init_method_args.length > 0 && init_method_args[0].is_a?(Hash) && init_method_args[0].key?('canister_id') ? init_method_args[0]['canister_id'] : @canister_id
           res = if init_method_anno == 'query'
-                  @agent.query_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_rets, effective_canister_id)
+                  @agent.query_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_rets, 
+effective_canister_id)
                 else
-                  @agent.update_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_rets, effective_canister_id)
+                  @agent.update_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), 
+init_method_rets, effective_canister_id)
                 end
 
           return res unless res.is_a?(Array)

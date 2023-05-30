@@ -86,7 +86,7 @@ module IcAgent
       "(#{@key_type}, #{@privkey}, #{@pubkey})"
     end
 
-    alias_method :inspect, :to_s
+    alias inspect to_s
   end
 
   class DelegateIdentity
@@ -110,7 +110,7 @@ module IcAgent
       parsed_ic_identity = JSON.parse(ic_identity)
       parsed_ic_delegation = JSON.parse(ic_delegation)
 
-      return DelegateIdentity.new(
+      DelegateIdentity.new(
         Identity.new(parsed_ic_identity[1][0...64]),
         parsed_ic_delegation
       )
@@ -120,6 +120,6 @@ module IcAgent
       "(#{@identity.to_s},\n#{@delegations.to_s})"
     end
 
-    alias_method :inspect, :to_s
+    alias inspect to_s
   end
 end
