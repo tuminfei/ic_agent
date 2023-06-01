@@ -60,28 +60,34 @@ module IcAgent
           elements[0].text_value
         end
 
-        def type_input_class
+        def type_param_content
           elements[1].text_value
         end
 
-        def type_input_items
-          elements[2].elements
+        def type_root_opt_code
+          elements[1].opt_code
         end
 
-        def type_input_item_names
+        def type_child_items
+          elements[1].elements[0].elements
+        end
+
+        def type_child_item_keys
           names = []
-          elements[2].elements.each do |ele|
-            names << ele.elements[0].elements[0].text_value.strip
+          type_child_items.each do |ele|
+            names << ele.elements[0].text_value.strip
           end
           names
         end
 
-        def type_input_item_fields
-          fields = []
-          elements[2].elements.each do |ele|
-            fields << ele.elements[0].elements[1].text_value.strip.split(' ')
+        def type_child_item_values
+          values = []
+          type_child_items.each do |ele|
+            item_arr = ele.text_value.strip.split(':')
+            item_value_arr = item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
+            values << (item_arr.size > 1 ? item_value_arr : [])
           end
-          fields
+          values
         end
 
         def to_s
@@ -91,9 +97,9 @@ module IcAgent
         def to_obj
           {
             'type_param_name' => type_param_name,
-            'type_input_class' => type_input_class,
-            'type_input_item_names' => type_input_item_names,
-            'type_input_item_fields' => type_input_item_fields
+            'type_root_opt_code' => type_root_opt_code,
+            'type_child_item_keys' => type_child_item_keys,
+            'type_child_item_values' => type_child_item_values
           }
         end
       end
@@ -108,69 +114,109 @@ module IcAgent
         end
       end
 
+      class BaseTypeRecord < NamedNode
+        def title
+          :base_type_record
+        end
+
+        def to_s
+          elements_to_s
+        end
+
+        def opt_code
+          'record'
+        end
+      end
+
+      class BaseTypeKey < NamedNode
+        def title
+          :base_type_key
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class BaseTypeVariant < NamedNode
+        def title
+          :base_type_variant
+        end
+
+        def to_s
+          elements_to_s
+        end
+
+        def opt_code
+          'variant'
+        end
+      end
+
+      class BaseTypeOpt < NamedNode
+        def title
+          :base_type_opt
+        end
+
+        def to_s
+          elements_to_s
+        end
+
+        def opt_code
+          'opt'
+        end
+      end
+
+      class BaseTypeVec < NamedNode
+        def title
+          :base_type_vec
+        end
+
+        def to_s
+          elements_to_s
+        end
+
+        def opt_code
+          'vec'
+        end
+      end
+
+      class BaseTypeOther < NamedNode
+        def title
+          :base_type_other
+        end
+
+        def to_s
+          elements_to_s
+        end
+
+        def opt_code
+          text_value
+        end
+      end
+
+      class BaseTypeContent < NamedNode
+        def title
+          :base_type_content
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class BaseTypeChild < NamedNode
+        def title
+          :base_type_child
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
       class TypeName < NamedNode
         def title
           :type_name
-        end
-
-        def to_s
-          elements_to_s
-        end
-      end
-
-      class TypeInputBaseType < NamedNode
-        def title
-          :type_input_base_type
-        end
-
-        def to_s
-          elements_to_s
-        end
-      end
-
-      class TypeBody < NamedNode
-        def title
-          :type_body
-        end
-
-        def to_s
-          elements_to_s
-        end
-      end
-
-      class TypeBodyItem < NamedNode
-        def title
-          :type_body_item
-        end
-
-        def to_s
-          elements_to_s
-        end
-      end
-
-      class TypeBodyItemObj < NamedNode
-        def title
-          :type_body_item_obj
-        end
-
-        def to_s
-          elements_to_s
-        end
-      end
-
-      class TypeBodyItemName < NamedNode
-        def title
-          :type_body_item
-        end
-
-        def to_s
-          elements_to_s
-        end
-      end
-
-      class TypeBodyItemValue < NamedNode
-        def title
-          :type_body_item
         end
 
         def to_s

@@ -1,0 +1,111 @@
+grammar DIDGrammar
+
+  rule body
+    ( type_declaration / service_declaration / comment / end_of_line )* <IcAgent::Ast::Nodes::DIDFile>
+  end
+
+  rule base_type
+    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' /
+    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func'
+  end
+
+  rule type_declaration
+    "type" space type_name space "=" space type_input_base_type space "{" end_of_line? type_body "};" end_of_line <IcAgent::Ast::Nodes::TypeDeclaration>
+  end
+
+  rule type_name
+    [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::TypeName>
+  end
+
+  rule type_body
+    type_body_item* <IcAgent::Ast::Nodes::TypeBody>
+  end
+
+  rule type_input_base_type
+      base_type+ <IcAgent::Ast::Nodes::TypeInputBaseType>
+  end
+
+  rule type_body_item
+    type_body_item_obj (';' space)* <IcAgent::Ast::Nodes::TypeBodyItem>
+  end
+
+  rule type_body_item_obj
+    type_body_item_name ':'? type_body_item_value? <IcAgent::Ast::Nodes::TypeBodyItemObj>
+  end
+
+  rule type_body_item_name
+    [a-zA-Z0-9_ ]+ <IcAgent::Ast::Nodes::TypeBodyItemName>
+  end
+
+  rule type_body_item_value
+    [a-zA-Z0-9_ ]+ <IcAgent::Ast::Nodes::TypeBodyItemValue>
+  end
+
+  rule body_item_element
+    [a-zA-Z0-9_: ]+
+  end
+
+  rule comment
+    space? '//' space? rest_of_line <IcAgent::Ast::Nodes::Comment>
+  end
+
+  rule service_declaration
+    "service" space ":" space "(" ic_service_name ")" space? "->" space? "{" end_of_line service_methods "}"  <IcAgent::Ast::Nodes::Service>
+  end
+
+  rule ic_service_name
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceName>
+  end
+
+  rule service_methods
+    (service_item)+ <IcAgent::Ast::Nodes::IcServiceMethods>
+  end
+
+  rule service_item
+    space? service_method_name space? ":" space? "(" service_method_params? ")" space? "->" space? "(" service_method_return_type ")" space? method_query? ';' end_of_line? <IcAgent::Ast::Nodes::IcServiceItem>
+  end
+
+  rule service_method_params
+    param_element (", " param_element)* <IcAgent::Ast::Nodes::IcServiceMethodParams>
+  end
+
+  rule service_method_return_type
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodReturn>
+  end
+
+  rule method_query
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodQuery>
+  end
+
+  rule words
+    [a-zA-Z_] [a-zA-Z0-9_]*
+  end
+
+  rule param_element
+    [a-zA-Z0-9_ ]+
+  end
+
+  rule service_method_name
+    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodName>
+  end
+
+  rule string_without_spaces
+    [\S]* <IcAgent::Ast::Nodes::StringLiteral>
+  end
+
+  rule rest_of_line
+    [^\n]* <IcAgent::Ast::Nodes::StringLiteral>
+  end
+
+  rule end_of_line
+    [\n]+
+  end
+
+  rule space
+    [\s]+
+  end
+
+  rule start_space
+    [^\s]+
+  end
+end

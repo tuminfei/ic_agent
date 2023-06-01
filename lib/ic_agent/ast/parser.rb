@@ -63,10 +63,7 @@ module IcAgent
       end
 
       def ic_type_name(ic_type)
-        ic_type.elements.each do |ele|
-          return ele.text_value if ele.title == :type_name
-        end
-        nil
+        ic_type.type_param_name
       end
 
       def ic_type_names

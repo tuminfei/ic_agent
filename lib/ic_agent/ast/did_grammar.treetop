@@ -5,44 +5,60 @@ grammar DIDGrammar
   end
 
   rule base_type
-    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' /
-    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func'
+    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' /
+    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func' / 'nat' / 'int'
+  end
+
+  rule base_type_single
+    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' / 'nat' / 'int'
+  end
+
+  rule base_type_code
+    [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::BaseTypeOther>
+  end
+
+  rule base_type_kye
+      [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::BaseTypeKey>
+    end
+
+  rule base_type_vec
+    'vec' space ic_all_type <IcAgent::Ast::Nodes::BaseTypeVec>
+  end
+
+  rule base_type_opt
+    'opt' space ic_all_type <IcAgent::Ast::Nodes::BaseTypeOpt>
+  end
+
+  rule base_type_record
+    'record' space '{' space_and_line ic_base_content space_and_line '}' <IcAgent::Ast::Nodes::BaseTypeRecord>
+  end
+
+  rule base_type_record_null
+    'record {}' <IcAgent::Ast::Nodes::BaseTypeRecord>
+  end
+
+  rule base_type_variant
+    'variant' space '{' space_and_line ic_base_content space_and_line '}' <IcAgent::Ast::Nodes::BaseTypeVariant>
+  end
+
+  rule ic_all_type
+    base_type_single / base_type_vec / base_type_record / base_type_record_null / base_type_variant / base_type_opt / base_type_code
+  end
+
+  rule ic_base_content
+    (ic_base_type)+  <IcAgent::Ast::Nodes::BaseTypeContent>
+  end
+
+  rule ic_base_type
+    space? base_type_kye (space ':' space ic_all_type)* optional_semicolon <IcAgent::Ast::Nodes::BaseTypeChild>
   end
 
   rule type_declaration
-    "type" space type_name space "=" space type_input_base_type space "{" end_of_line? type_body "};" end_of_line <IcAgent::Ast::Nodes::TypeDeclaration>
+    'type' space_and_line type_name space_and_line '=' space_and_line ic_all_type ';' end_of_line <IcAgent::Ast::Nodes::TypeDeclaration>
   end
 
   rule type_name
     [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::TypeName>
-  end
-
-  rule type_body
-    type_body_item* <IcAgent::Ast::Nodes::TypeBody>
-  end
-
-  rule type_input_base_type
-      base_type+ <IcAgent::Ast::Nodes::TypeInputBaseType>
-  end
-
-  rule type_body_item
-    type_body_item_obj (';' space)* <IcAgent::Ast::Nodes::TypeBodyItem>
-  end
-
-  rule type_body_item_obj
-    type_body_item_name ':'? type_body_item_value? <IcAgent::Ast::Nodes::TypeBodyItemObj>
-  end
-
-  rule type_body_item_name
-    [a-zA-Z0-9_ ]+ <IcAgent::Ast::Nodes::TypeBodyItemName>
-  end
-
-  rule type_body_item_value
-    [a-zA-Z0-9_ ]+ <IcAgent::Ast::Nodes::TypeBodyItemValue>
-  end
-
-  rule body_item_element
-    [a-zA-Z0-9_: ]+
   end
 
   rule comment
@@ -101,11 +117,31 @@ grammar DIDGrammar
     [\n]+
   end
 
+  rule block_record
+    '{}'
+  end
+
+  rule has_end_of_line
+    [\n]*
+  end
+
+  rule splite_code
+    ' : '
+  end
+
+  rule space_and_line
+    [\s\n]*
+  end
+
   rule space
     [\s]+
   end
 
   rule start_space
     [^\s]+
+  end
+
+  rule optional_semicolon
+    [;]*
   end
 end
