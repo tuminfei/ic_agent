@@ -180,7 +180,7 @@ describe IcAgent::Candid do
     )
   end
 
-  it 'Record(float64, float64) IcAgent::Candid.encode' do
+  it 'Record(int, int64) IcAgent::Candid.encode' do
     params = [{ 'type': IcAgent::Candid::BaseTypes.record({ 'key1' => IcAgent::Candid::BaseTypes.int, 'key2' => IcAgent::Candid::BaseTypes.int64 }), 'value': { 'key1' => 1, 'key2' => 2 } }]
     data = IcAgent::Candid.encode(params)
     expect(data).to eql('4449444c016c02b2c39bb8047cb3c39bb804740100010200000000000000')
@@ -189,6 +189,18 @@ describe IcAgent::Candid do
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
       'value' => { '_1191633330_'=>1, '_1191633331_'=>2 }
+    )
+  end
+
+  it 'Record(int, int64, Record(int, int64)) IcAgent::Candid.encode' do
+    params = [{ 'type': IcAgent::Candid::BaseTypes.record({ 'key1' => IcAgent::Candid::BaseTypes.int, 'key2' => IcAgent::Candid::BaseTypes.int64, 'key3' => IcAgent::Candid::BaseTypes.record({ 'key1' => IcAgent::Candid::BaseTypes.int, 'key2' => IcAgent::Candid::BaseTypes.int64}) }), 'value': { 'key1' => 1, 'key2' => 2, 'key3' => { 'key1' => 1, 'key2' => 2 } } }]
+    data = IcAgent::Candid.encode(params)
+    expect(data).to eql('4449444c026c02b2c39bb8047cb3c39bb804746c03b2c39bb8047cb3c39bb80474b4c39bb804000101010200000000000000010200000000000000')
+
+    decode_params = IcAgent::Candid.decode(data)
+    expect(decode_params.size).to eql(1)
+    expect(decode_params[0]).to include(
+      'value' => {"_1191633330_"=>1, "_1191633331_"=>2, "_1191633332_"=>{"_1191633330_"=>1, "_1191633331_"=>2}}
     )
   end
 
