@@ -28,9 +28,20 @@ module IcAgent
         args = service_method['ic_service_method_params']
         rets = service_method['ic_service_method_return']
 
-        args_arrs = service_params(parser, ic_type_names, args)
-        rets_arrs = service_params(parser, ic_type_names, rets)
+        args_arr = args.nil? ? [] : args.split(',').map(&:strip)
+        args_type_arrs = []
+        args_arr.each do |arg|
+          arr_arg = arg.split(' ').map(&:strip)
+          opt_code = arr_arg[0]
+          child_item = arr_arg.size > 0 ? arr_arg[1..] : []
 
+          if IcAgent::Candid::ALL_TYPES.include?(opt_code)
+            args_type_arrs << service_params(parser, ic_type_names, nil, opt_code, child_item)
+          else
+            args_type_arrs << service_params(parser, ic_type_names, arg)
+          end
+        end
+        # rets_type_arrs = service_params(parser, ic_type_names, rets)
 
         add_caniter_method(method_name, args, rets, anno)
       end
@@ -38,20 +49,30 @@ module IcAgent
 
     private
 
-    def service_params(parser, ic_type_names, args_name, now_args = {}, child_args = [])
-      input_body = parser.ic_type_by_name(args_name)
-      input_body_obj = input_body.to_obj
+    def service_params(parser, ic_type_names, args_name, arg_opt_code = nil, arg_child_item = [], now_args = {}, child_args = [])
+      # logger = Logger.new("logger.txt")
+      # logger.info("#{args_name}::::#{arg_opt_code}")
+      if arg_opt_code.nil?
+        input_body = parser.ic_type_by_name(args_name)
+        input_body_obj = input_body.to_obj
+        opt_code = input_body_obj['type_root_opt_code']
+        child_item = input_body_obj['type_child_item_values']
+      else
+        opt_code = arg_opt_code
+        child_item = arg_child_item
+      end
+
       tree_code = now_args.key?('root') ? 'child' : 'root'
 
-      if IcAgent::Candid::MULTI_TYPES.include? input_body_obj['type_root_opt_code'] || child_args.length > 0
+      if IcAgent::Candid::MULTI_TYPES.include? opt_code || child_args.length > 0
         if tree_code == 'root'
-          now_args[tree_code] = [input_body_obj['type_root_opt_code'], input_body_obj['type_child_item_values']]
+          now_args[tree_code] = [opt_code, child_item]
         else
           now_args[tree_code] = {} if now_args[tree_code].nil?
-          now_args[tree_code][args_name] = [input_body_obj['type_root_opt_code'], input_body_obj['type_child_item_values']]
+          now_args[tree_code][args_name] = [opt_code, child_item]
         end
 
-        child_args = child_args + input_body_obj['type_child_item_values'].flatten - IcAgent::Candid::SINGLE_TYPES - IcAgent::Candid::MULTI_TYPES
+        child_args = child_args + child_item.flatten - IcAgent::Candid::SINGLE_TYPES - IcAgent::Candid::MULTI_TYPES
         child_args = child_args.uniq
         now_child_keys = now_args['child'].nil? ? [] : now_args['child'].keys
         # filter out non-existing types
@@ -60,10 +81,10 @@ module IcAgent
 
         if child_args.length > 0
           next_args_name = child_args.pop
-          return service_params(parser, ic_type_names, next_args_name, now_args, child_args)
+          return service_params(parser, ic_type_names, next_args_name, nil, [], now_args, child_args)
         end
       else
-        now_args[tree_code] = [input_body_obj['type_root_opt_code'], nil]
+        now_args[tree_code] = [opt_code, nil]
       end
       now_args
     end
