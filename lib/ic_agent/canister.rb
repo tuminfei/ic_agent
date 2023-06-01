@@ -52,14 +52,14 @@ module IcAgent
     def service_params(parser, ic_type_names, args_name, arg_opt_code = nil, arg_child_item = [], now_args = {}, child_args = [])
       # logger = Logger.new("logger.txt")
       # logger.info("#{args_name}::::#{arg_opt_code}")
-      if arg_opt_code.nil?
+      if args_name.nil?
+        opt_code = arg_opt_code
+        child_item = arg_child_item
+      else
         input_body = parser.ic_type_by_name(args_name)
         input_body_obj = input_body.to_obj
         opt_code = input_body_obj['type_root_opt_code']
         child_item = input_body_obj['type_child_item_values']
-      else
-        opt_code = arg_opt_code
-        child_item = arg_child_item
       end
 
       tree_code = now_args.key?('root') ? 'child' : 'root'
