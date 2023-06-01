@@ -89,6 +89,17 @@ module IcAgent
       now_args
     end
 
+    # params array recursively call, traverse, and replace
+    def service_params_replace(arr, search_value, replace_value)
+      arr.map! do |element|
+        if element.is_a?(Array)
+          service_params_replace(element, search_value, replace_value)
+        else
+          element == search_value ? replace_value : element
+        end
+      end
+    end
+
     def add_caniter_method(method_name, type_args, rets, anno = nil)
       self.class.class_eval do
         define_method(method_name) do |*args|
