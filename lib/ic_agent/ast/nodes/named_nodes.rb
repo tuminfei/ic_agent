@@ -61,7 +61,7 @@ module IcAgent
         end
 
         def type_param_content
-          elements[1].text_value
+          elements[1].text_value.gsub("\n", '')
         end
 
         def type_root_opt_code
@@ -85,6 +85,9 @@ module IcAgent
           type_child_items.each do |ele|
             item_arr = ele.text_value.strip.split(':')
             item_value_arr = item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
+            item_value_arr.delete('{')
+            item_value_arr.delete('}')
+            item_value_arr.delete('{}')
             values << (item_arr.size > 1 ? item_value_arr : [])
           end
           values

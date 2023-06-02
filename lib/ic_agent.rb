@@ -17,6 +17,7 @@ require_relative 'ic_agent/ast/nodes/named_nodes'
 require_relative 'ic_agent/ast/nodes/string_literal'
 require_relative 'ic_agent/ast/parser'
 require_relative 'ic_agent/ast/writer'
+require_relative 'ic_agent/ast/assembler'
 
 module IcAgent
   class Error < StandardError; end
