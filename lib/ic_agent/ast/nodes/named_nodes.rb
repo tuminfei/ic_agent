@@ -61,7 +61,7 @@ module IcAgent
         end
 
         def type_param_content
-          elements[1].text_value.gsub("\n", '')
+          elements[1].text_value.gsub("\n", '').gsub(';}', '}')
         end
 
         def type_root_opt_code
@@ -91,6 +91,11 @@ module IcAgent
             values << (item_arr.size > 1 ? item_value_arr : [])
           end
           values
+        end
+
+        def type_child_refer_items
+          child_args = type_child_item_values.flatten - IcAgent::Candid::ALL_TYPES
+          child_args.uniq
         end
 
         def to_s

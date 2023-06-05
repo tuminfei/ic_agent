@@ -43,6 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'leb128', '~> 1.0'
   spec.add_dependency 'rbsecp256k1', '~> 6.0'
   spec.add_dependency 'ruby-enum', '~> 0.9.0'
+  spec.add_dependency 'rubytree', '~> 2.0'
   spec.add_dependency 'treetop', '~> 1.6'
 
   spec.add_development_dependency 'byebug', '~> 11.1'
