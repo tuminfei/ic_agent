@@ -192,12 +192,14 @@ module IcAgent
       if parts.size > 0
         parts.map do |part|
           last_index = part.rindex(find_text)
-          part[last_index..(last_index + find_text.size - 1)] = replace_text if last_index && (last_index + find_text.size) == part.size
+          e_last_index = part.rindex("#{find_text}}")
+          part[last_index..(last_index + find_text.size - 1)] = replace_text if last_index && (e_last_index || (last_index + find_text.size) == part.size)
         end
         new_root_text = parts.join(";")
       else
         last_index = new_root_text.rindex(find_text)
-        new_root_text[last_index..(last_index + find_text.size - 1)] = replace_text if last_index && (last_index + find_text.size) == part.size
+        e_last_index = new_root_text.rindex("#{find_text}}")
+        new_root_text[last_index..(last_index + find_text.size - 1)] = replace_text if last_index && (e_last_index || (last_index + find_text.size) == part.size)
       end
       new_root_text
     end
