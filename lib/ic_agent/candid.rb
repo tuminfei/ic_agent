@@ -40,6 +40,8 @@ module IcAgent
     PREFIX = 'DIDL'
     SINGLE_TYPES = %w[null bool nat int nat8 nat16 nat32 nat64 int8 int16 int32 int64 float32 float64 text reserved empty principal]
     MULTI_TYPES = %w[opt vec record variant func service]
+    RESULT_TYPE = %w[Ok Err]
+
     ALL_TYPES = SINGLE_TYPES + MULTI_TYPES
 
     class TypeTable

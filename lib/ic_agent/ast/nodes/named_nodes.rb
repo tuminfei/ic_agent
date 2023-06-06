@@ -84,11 +84,15 @@ module IcAgent
           values = []
           type_child_items.each do |ele|
             item_arr = ele.text_value.strip.split(':')
-            item_value_arr = item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
-            item_value_arr.delete('{')
-            item_value_arr.delete('}')
-            item_value_arr.delete('{}')
-            values << (item_arr.size > 1 ? item_value_arr : [])
+            if item_arr.size > 1
+              item_value_arr = item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
+              item_value_arr.delete('{')
+              item_value_arr.delete('}')
+              item_value_arr.delete('{}')
+              values << item_value_arr
+            else
+              values << []
+            end
           end
           values
         end

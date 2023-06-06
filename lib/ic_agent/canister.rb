@@ -36,21 +36,21 @@ module IcAgent
           refer_type = refer_type(arg)
           if refer_type
             tree = build_param_tree(parser, refer_type, nil, nil)
-            decode_root = tree.content[:content]
+            args_type_arrs << tree.content[:ic_type]
           else
             decode_root = arg
+            args_type_arrs << IcAgent::Ast::Assembler.build_type(decode_root)
           end
-          args_type_arrs << IcAgent::Ast::Assembler.build_type(decode_root)
         end
 
         rets_refer_type = refer_type(rets)
         if rets_refer_type
           ret_tree = build_param_tree(parser, rets_refer_type, nil, nil)
-          decode_ret = ret_tree.content[:content]
+          ret_type = ret_tree.content[:ic_type]
         else
           decode_ret = rets
+          ret_type = IcAgent::Ast::Assembler.build_type(decode_ret)
         end
-        ret_type = IcAgent::Ast::Assembler.build_type(decode_ret)
 
         add_caniter_method(method_name, args, args_type_arrs, ret_type, anno)
       end
@@ -104,6 +104,9 @@ module IcAgent
                                          'all_child': refer_nodes,
                                          'child_refer': refer_nodes,
                                          'self_refer': false,
+                                         'refer_path': [type_name],
+                                         'ic_type': nil,
+                                         'prototype': root_type.type_param_content,
                                          'content': root_type.type_param_content })
         tree_root_node = root_node
       else
@@ -114,11 +117,22 @@ module IcAgent
       if tree_root_node && current_node && tree_root_node.name != current_node.name && current_node.content[:child_refer].size == 0
         parent_node = current_node.parent
         parent_node.content[:child_refer].delete(current_node.name)
+        # update parent ic types
+        child_key_types = {}
+        current_node.children.each do |child_node|
+          child_key_types[child_node.name] = child_node.content[:ic_type]
+        end
+        ic_type = IcAgent::Ast::Assembler.build_type(current_node.content[:prototype], child_key_types)
+        current_node.content[:ic_type] = ic_type
+
 
         # replace parent content
         new_content = replace_root_child_code(parent_node.content[:content], current_node.name, current_node.content[:content])
         parent_node.content[:content] = new_content
 
+        # clear refer_path
+        refer_index = tree_root_node.content[:refer_path].index(current_node.name)
+        tree_root_node.content[:refer_path] = tree_root_node.content[:refer_path].slice(0, refer_index) if refer_index
         build_param_tree(parser, parent_node.name, parent_node, tree_root_node)
       end
 
@@ -126,7 +140,7 @@ module IcAgent
         if refer_nodes.size > 0
           refer_node = refer_nodes[0]
           # self refer
-          if tree_root_node && tree_root_node.name == refer_node
+          if tree_root_node && tree_root_node.content[:refer_path].include?(refer_node)
             child_node = Tree::TreeNode.new(refer_node, { 'total_child': 0, 'child_refer': [], 'self_refer': true, 'content': nil })
             root_node << child_node
             root_node.content[:child_refer].delete(refer_node)
@@ -136,7 +150,14 @@ module IcAgent
             child_type = parser.ic_type_by_name(refer_node)
             child_refer_nodes = child_type.type_child_refer_items
             if child_refer_nodes.size == 0
-              child_node = Tree::TreeNode.new(refer_node, { 'total_child': 0, 'child_refer': [], 'self_refer': false, 'content': child_type.type_param_content })
+              # set ic type
+              ic_type = IcAgent::Ast::Assembler.build_type(child_type.type_param_content)
+              child_node = Tree::TreeNode.new(refer_node, { 'total_child': 0,
+                                                            'child_refer': [],
+                                                            'self_refer': false,
+                                                            'ic_type': ic_type,
+                                                            'prototype': child_type.type_param_content,
+                                                            'content': child_type.type_param_content })
               root_node << child_node
               root_node.content[:child_refer].delete(refer_node)
 
@@ -145,14 +166,32 @@ module IcAgent
               root_node.content[:content] = new_content
               build_param_tree(parser, root_node.name, root_node, tree_root_node)
             else
-              child_node = Tree::TreeNode.new(refer_node, { 'total_child': child_refer_nodes.size, 'child_refer': child_refer_nodes, 'self_refer': false, 'content': child_type.type_param_content })
+              child_node = Tree::TreeNode.new(refer_node, { 'total_child': child_refer_nodes.size,
+                                                            'child_refer': child_refer_nodes,
+                                                            'self_refer': false,
+                                                            'prototype': child_type.type_param_content,
+                                                            'content': child_type.type_param_content })
               root_node << child_node
               tree_root_node.content[:all_child] = (tree_root_node.content[:all_child] + child_refer_nodes).uniq
+
+              # add refer_path
+              tree_root_node.content[:refer_path] << refer_node
               build_param_tree(parser, refer_node, child_node, tree_root_node)
             end
           end
         end
       end
+
+      # update root_node ic types
+      if root_node.content[:ic_type].nil?
+        child_key_types = {}
+        root_node.children.each do |child_node|
+          child_key_types[child_node.name] = child_node.content[:ic_type]
+        end
+        ic_type = IcAgent::Ast::Assembler.build_type(root_node.content[:prototype], child_key_types)
+        root_node.content[:ic_type] = ic_type
+      end
+
       root_node
     end
 
