@@ -353,17 +353,17 @@ describe IcAgent::Canister do
     gov = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
     res = gov.list_proposals(
       {
-        'include_reward_status': [],
-        'before_proposal': [],
-        'limit': 100,
-        'exclude_topic': [],
-        'include_status': [1]
+        'include_reward_status' => [],
+        'before_proposal' => [],
+        'limit' => 100,
+        'exclude_topic' => [],
+        'include_status' => [1]
       }
     )
     byebug
     params = [{
       'type': IcAgent::Candid::BaseTypes.record({ 'include_reward_status' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32),
-                                                  'before_proposal' => IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.nat64),
+                                                  'before_proposal' => IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.record('id' => IcAgent::Candid::BaseTypes.nat64)),
                                                   'limit' => IcAgent::Candid::BaseTypes.nat32,
                                                   'exclude_topic' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32),
                                                   'include_status' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32) }),
@@ -374,6 +374,7 @@ describe IcAgent::Canister do
                  'include_status' => [] }
     }]
     data = IcAgent::Candid.encode(params)
+    puts data
   end
 end
 

@@ -33,26 +33,15 @@ module IcAgent
         args_arr = args.nil? ? [] : args.split(',').map(&:strip)
         args_type_arrs = []
         args_arr.each do |arg|
-
           refer_type = refer_type(arg)
-          tree = refer_type ? build_param_tree(parser, refer_type, nil, nil) : nil
-
-          byebug if method_name == 'manage_neuron'
-          child_type_names = service_param_child_tree(parser, method_name, arg)
-          decode_root = decode_type_arg(parser, arg)
-          decode_child_arr = {}
-
-          # decode all type
-          child_type_names.each do |child|
-            decode_child = decode_type_arg(parser, child)
-            decode_child_arr[child] = decode_child
-            puts "#{child}---#{decode_child}"  if method_name == 'manage_neuron'
-            decode_root = replace_root_child_code(decode_root, child, decode_child)
+          if refer_type
+            tree = build_param_tree(parser, refer_type, nil, nil)
+            decode_root = tree.content[:content]
+          else
+            decode_root = arg
           end
-          puts decode_root
           args_type_arrs << IcAgent::Ast::Assembler.build_type(decode_root)
         end
-        # rets_type_arrs = service_params(parser, ic_type_names, rets)
 
         add_caniter_method(method_name, args, args_type_arrs, rets, anno)
       end
@@ -221,7 +210,7 @@ module IcAgent
 
           arguments = []
           args.each_with_index do |arg, i|
-            arguments << { 'type' => init_method_types[i], 'value' => arg }
+            arguments << { 'type': init_method_types[i], 'value': arg }
           end
 
           effective_canister_id = @canister_id == 'aaaaa-aa' && init_method_args.length > 0 && init_method_args[0].is_a?(Hash) && init_method_args[0].key?('canister_id') ? init_method_args[0]['canister_id'] : @canister_id
