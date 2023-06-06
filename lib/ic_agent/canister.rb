@@ -43,7 +43,16 @@ module IcAgent
           args_type_arrs << IcAgent::Ast::Assembler.build_type(decode_root)
         end
 
-        add_caniter_method(method_name, args, args_type_arrs, rets, anno)
+        rets_refer_type = refer_type(rets)
+        if rets_refer_type
+          ret_tree = build_param_tree(parser, rets_refer_type, nil, nil)
+          decode_ret = ret_tree.content[:content]
+        else
+          decode_ret = rets
+        end
+        ret_type = IcAgent::Ast::Assembler.build_type(decode_ret)
+
+        add_caniter_method(method_name, args, args_type_arrs, ret_type, anno)
       end
     end
 
@@ -195,14 +204,14 @@ module IcAgent
       new_root_text
     end
 
-    def add_caniter_method(method_name, type_args, args_types, rets, anno = nil)
+    def add_caniter_method(method_name, type_args, args_types, rets_type, anno = nil)
       self.class.class_eval do
         define_method(method_name) do |*args|
           init_method_name = method_name
           init_method_args = type_args.nil? ? [] : type_args.split(',').map(&:strip)
-          init_method_rets = rets
           init_method_anno = anno
           init_method_types = args_types
+          init_method_ret_type = rets_type
 
           if init_method_args.length != args.length
             raise ArgumentError, 'Arguments length not match'
@@ -215,11 +224,10 @@ module IcAgent
 
           effective_canister_id = @canister_id == 'aaaaa-aa' && init_method_args.length > 0 && init_method_args[0].is_a?(Hash) && init_method_args[0].key?('canister_id') ? init_method_args[0]['canister_id'] : @canister_id
           res = if init_method_anno == 'query'
-                  @agent.query_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_rets, effective_canister_id)
+                  @agent.query_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_ret_type, effective_canister_id)
                 else
-                  @agent.update_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_rets, effective_canister_id)
+                  @agent.update_raw(@canister_id, init_method_name, IcAgent::Candid.encode(arguments), init_method_ret_type, effective_canister_id)
                 end
-
           return res unless res.is_a?(Array)
 
           res.map { |item| item['value'] }
