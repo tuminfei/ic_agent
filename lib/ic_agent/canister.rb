@@ -199,7 +199,7 @@ module IcAgent
       self.class.class_eval do
         define_method(method_name) do |*args|
           init_method_name = method_name
-          init_method_args = type_args.split(',').map(&:strip)
+          init_method_args = type_args.nil? ? [] : type_args.split(',').map(&:strip)
           init_method_rets = rets
           init_method_anno = anno
           init_method_types = args_types

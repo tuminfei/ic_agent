@@ -350,17 +350,17 @@ describe IcAgent::Canister do
   end
 
   it 'IcAgent::Canister call' do
-    gov = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
-    res = gov.list_proposals(
-      {
-        'include_reward_status' => [],
-        'before_proposal' => [],
-        'limit' => 100,
-        'exclude_topic' => [],
-        'include_status' => [1]
-      }
-    )
-    byebug
+    # gov = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
+    # res = gov.list_proposals(
+    #   {
+    #     'include_reward_status' => [],
+    #     'before_proposal' => [],
+    #     'limit' => 100,
+    #     'exclude_topic' => [],
+    #     'include_status' => [1]
+    #   }
+    # )
+    # byebug
     params = [{
       'type': IcAgent::Candid::BaseTypes.record({ 'include_reward_status' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32),
                                                   'before_proposal' => IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.record('id' => IcAgent::Candid::BaseTypes.nat64)),
