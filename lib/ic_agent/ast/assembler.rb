@@ -10,12 +10,12 @@ module IcAgent
       end
 
       def self.build_opt(child_type, key_types = {})
-        child_type = key_types[child_type].nil? ? build_type(child_type) : key_types[child_type]
+        child_type = key_types[child_type].nil? ? build_type(child_type, key_types) : key_types[child_type]
         IcAgent::Candid::BaseTypes.opt(child_type)
       end
 
       def self.build_vec(child_type, key_types = {})
-        child_type = key_types[child_type].nil? ? build_single_type(child_type) : key_types[child_type]
+        child_type = key_types[child_type].nil? ? build_type(child_type, key_types) : key_types[child_type]
         IcAgent::Candid::BaseTypes.vec(child_type)
       end
 
@@ -26,7 +26,7 @@ module IcAgent
             multi_type = build_type(multi_types[child_hash[key].strip], key_types, multi_types)
             child_types[key] = multi_type
           elsif key_types[child_hash[key].strip]
-            child_types[key] = key_types[key]
+            child_types[key] = key_types[child_hash[key].strip]
           else
             child_types[key] = build_type(child_hash[key], key_types, multi_types)
           end
@@ -41,7 +41,7 @@ module IcAgent
             multi_type = build_type(multi_types[child_hash[key].strip], multi_types)
             child_types[key] = multi_type
           elsif key_types[child_hash[key].strip]
-            child_types[key] = key_types[key]
+            child_types[key] = key_types[child_hash[key].strip]
           else
             child_types[key] = build_type(child_hash[key], key_types, multi_types)
           end
@@ -111,7 +111,7 @@ module IcAgent
           key = item_str[0..first_index].strip
           value = item_str[(first_index + index_str.size)..].strip
         else
-          key = key_index
+          key = key_index.to_s
           value = item_str.strip
         end
         return key, value
