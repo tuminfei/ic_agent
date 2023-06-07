@@ -18,5 +18,6 @@ gem 'pry'
 gem 'rake', '~> 13.0'
 gem 'rbsecp256k1', '~> 6.0'
 gem 'ruby-enum', '~> 0.9.0'
+gem 'rubytree', '~> 2.0'
 gem 'treetop', '~> 1.6', '>= 1.6.12'
 

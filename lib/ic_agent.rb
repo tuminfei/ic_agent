@@ -17,12 +17,14 @@ require_relative 'ic_agent/ast/nodes/named_nodes'
 require_relative 'ic_agent/ast/nodes/string_literal'
 require_relative 'ic_agent/ast/parser'
 require_relative 'ic_agent/ast/writer'
+require_relative 'ic_agent/ast/assembler'
+
+require_relative 'ic_agent/common/ledger'
 
 module IcAgent
   class Error < StandardError; end
   class ValueError < StandardError; end
   class TypeError < StandardError; end
-  # Your code goes here...
 
   IC_REQUEST_DOMAIN_SEPARATOR = "\x0Aic-request".freeze
   IC_ROOT_KEY = "\x4E\x9A\xF9\x9F\x06\x13\x26\x81\xE7\xD2\x55\x2A\x26\x17\x98\x51\xE9\xC3\x79\xB3\xC7\xBE\x88\x27\xB8\x35\x17\xFC\x84\x4E\x4C\x4F".freeze
