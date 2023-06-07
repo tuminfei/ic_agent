@@ -139,6 +139,10 @@ subnet_public_key = IcAgent::SyetemState.subnet_public_key(agent, "gvbup-jyaaa-a
 
 Create a canister instance with candid interface file and canister id, and call canister method with canister instance:
 
+```ruby
+ledger = IcAgent::Common::Ledger.new
+ledger.canister.name()
+```
 
 ## UNIT TEST
 
