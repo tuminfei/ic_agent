@@ -188,8 +188,8 @@ describe IcAgent::Candid do
     decode_params = IcAgent::Candid.decode(data)
     expect(decode_params.size).to eql(1)
     expect(decode_params[0]).to include(
-                                  'value' => { '_1191633332_'=>1.0, '_1191633333_'=>2.0 }
-                                )
+      'value' => { '_1191633332_'=>1.0, '_1191633333_'=>2.0 }
+    )
   end
 
   it 'Record(int, int64) IcAgent::Candid.encode' do
