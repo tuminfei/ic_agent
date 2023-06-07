@@ -71,7 +71,6 @@ module IcAgent
     def build_param_tree(parser, type_name, current_node = nil, tree_root_node = nil)
       if current_node.nil?
         root_type = parser.ic_type_by_name(type_name)
-        byebug if root_type.nil?
         refer_nodes = root_type.type_child_refer_items.nil? ? [] : root_type.type_child_refer_items
         root_node = Tree::TreeNode.new(type_name,
                                        { 'total_child': refer_nodes.size,

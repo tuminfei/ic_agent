@@ -178,7 +178,7 @@ module IcAgent
           end
           value_arr.delete(key)
         end
-        value_arr.flatten.uniq - IcAgent::Candid::ALL_TYPES
+        value_arr.flatten.uniq - IcAgent::Candid::ALL_TYPES - replaced_hash.keys
       end
 
       def self.recover_type(type_str, multi_types)
