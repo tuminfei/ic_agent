@@ -19,6 +19,8 @@ require_relative 'ic_agent/ast/parser'
 require_relative 'ic_agent/ast/writer'
 require_relative 'ic_agent/ast/assembler'
 
+require_relative 'ic_agent/common/ledger'
+
 module IcAgent
   class Error < StandardError; end
   class ValueError < StandardError; end

@@ -6,20 +6,24 @@ grammar DIDGrammar
 
   rule base_type
     'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' /
-    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func' / 'nat' / 'int'
+    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func' / 'nat' / 'int' / blob
   end
 
   rule base_type_single
-    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' / 'nat' / 'int'
+    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' / 'nat' / 'int' / 'blob'
+  end
+
+  rule base_type_base
+    base_type_single+ <IcAgent::Ast::Nodes::BaseTypeSingle>
   end
 
   rule base_type_code
     [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::BaseTypeOther>
   end
 
-  rule base_type_kye
+  rule base_type_key
       [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::BaseTypeKey>
-    end
+  end
 
   rule base_type_vec
     'vec' space ic_all_type <IcAgent::Ast::Nodes::BaseTypeVec>
@@ -41,8 +45,12 @@ grammar DIDGrammar
     'variant' space '{' space_and_line ic_base_content space_and_line '}' <IcAgent::Ast::Nodes::BaseTypeVariant>
   end
 
+  rule base_type_func
+    'func' space? "(" service_method_params? ")" space? "->" space? "(" service_method_return_type ")" space? method_query? <IcAgent::Ast::Nodes::BaseTypeFunc>
+  end
+
   rule ic_all_type
-    base_type_single / base_type_vec / base_type_record / base_type_record_null / base_type_variant / base_type_opt / base_type_code
+    base_type_base / base_type_vec / base_type_record / base_type_record_null / base_type_variant / base_type_opt / base_type_func / base_type_code
   end
 
   rule ic_base_content
@@ -50,7 +58,7 @@ grammar DIDGrammar
   end
 
   rule ic_base_type
-    space? base_type_kye (space ':' space ic_all_type)* optional_semicolon <IcAgent::Ast::Nodes::BaseTypeChild>
+    space? base_type_key space? (':' space ic_all_type)* optional_semicolon <IcAgent::Ast::Nodes::BaseTypeChild>
   end
 
   rule type_declaration
@@ -66,7 +74,11 @@ grammar DIDGrammar
   end
 
   rule service_declaration
-    "service" space ":" space "(" ic_service_name ")" space? "->" space? "{" end_of_line service_methods "}"  <IcAgent::Ast::Nodes::Service>
+    "service" space ":" space service_name* "{" end_of_line service_methods "}"  <IcAgent::Ast::Nodes::Service>
+  end
+
+  rule service_name
+    "(" ic_service_name ")" space? "->" space?
   end
 
   rule ic_service_name
@@ -86,7 +98,7 @@ grammar DIDGrammar
   end
 
   rule service_method_return_type
-    [a-zA-Z0-9_]* <IcAgent::Ast::Nodes::IcServiceMethodReturn>
+    [a-zA-Z0-9_{}: ]* <IcAgent::Ast::Nodes::IcServiceMethodReturn>
   end
 
   rule method_query

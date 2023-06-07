@@ -9,6 +9,10 @@ module IcAgent
         IcAgent::Candid::BaseTypes.send(child_type)
       end
 
+      def self.build_blob
+        IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.nat8)
+      end
+
       def self.build_opt(child_type, key_types = {})
         child_type = key_types[child_type].nil? ? build_type(child_type, key_types) : key_types[child_type]
         IcAgent::Candid::BaseTypes.opt(child_type)
@@ -54,6 +58,8 @@ module IcAgent
 
         if IcAgent::Candid::SINGLE_TYPES.include? opt_code
           build_single_type(opt_code)
+        elsif opt_code == 'blob'
+          build_blob
         elsif opt_code == 'opt'
           type_str = recover_type(type_str, multi_types)
           child_code = get_child_code(type_str, ' ')
@@ -144,6 +150,35 @@ module IcAgent
         end
 
         return modified_str, replaced_hash
+      end
+
+      def self.get_params_refer_values(type_str)
+        pure_child_code, replaced_hash = replace_multi_type(type_str)
+        key_index = 0
+        value_arr = []
+        pure_child_code.split(';').each do |item|
+          _, item_value = get_record_key_value(item, ' : ', key_index)
+          value_arr << item_value.split(' ')
+          key_index += 1
+        end
+
+        replaced_hash.each_key do |key|
+          item_arr = replaced_hash[key].strip.split(';')
+          item_arr.each do |item|
+            multi_item_arr = item.strip.split(':')
+            if multi_item_arr.size > 1
+              item_value_arr = multi_item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
+              item_value_arr.delete('{')
+              item_value_arr.delete('}')
+              item_value_arr.delete('{}')
+              value_arr << item_value_arr
+            else
+              value_arr << multi_item_arr[1].strip
+            end
+          end
+          value_arr.delete(key)
+        end
+        value_arr.flatten.uniq - IcAgent::Candid::ALL_TYPES
       end
 
       def self.recover_type(type_str, multi_types)

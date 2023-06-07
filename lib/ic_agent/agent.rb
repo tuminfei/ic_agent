@@ -1,7 +1,6 @@
 require 'cbor'
 require 'ctf_party'
 
-
 module IcAgent
   class Request
     def self.sign_request(req, iden)

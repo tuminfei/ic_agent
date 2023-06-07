@@ -69,7 +69,11 @@ module IcAgent
         end
 
         def type_child_items
-          elements[1].elements[0].elements
+          if elements && elements[1] && elements[1].elements && elements[1].elements[0]
+            elements[1].elements[0].elements
+          else
+            elements
+          end
         end
 
         def type_child_item_keys
@@ -83,12 +87,45 @@ module IcAgent
         def type_child_item_values
           values = []
           type_child_items.each do |ele|
-            item_arr = ele.text_value.strip.split(':')
+
+            # get multi type value
+            replaced_hash = {}
+            modified_str = ele.text_value.gsub("\n", '').gsub(/record\s*{[^{}]*}/) do |match|
+              rad_id = rand(100000..999999)
+              type_name = "record_#{rad_id}"
+              replaced_hash[type_name] = match
+              type_name
+            end
+            modified_str = modified_str.gsub(/variant\s*{[^{}]*}/) do |match|
+              rad_id = rand(100000..999999)
+              type_name = "variant_#{rad_id}"
+              replaced_hash[type_name] = match
+              type_name
+            end
+            replaced_hash.each_key do |key|
+              item_arr = replaced_hash[key].strip.split(';')
+              item_arr.each do |item|
+                multi_item_arr = item.strip.split(':')
+                if multi_item_arr.size > 1
+                  item_value_arr = multi_item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
+                  item_value_arr.delete('{')
+                  item_value_arr.delete('}')
+                  item_value_arr.delete('{}')
+                  values << item_value_arr
+                else
+                  values << []
+                end
+              end
+            end
+
+            # get root type value
+            item_arr = modified_str.strip.split(':')
             if item_arr.size > 1
               item_value_arr = item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
               item_value_arr.delete('{')
               item_value_arr.delete('}')
               item_value_arr.delete('{}')
+              item_value_arr -= replaced_hash.keys
               values << item_value_arr
             else
               values << []
@@ -123,6 +160,20 @@ module IcAgent
 
         def to_s
           elements_to_s
+        end
+      end
+
+      class BaseTypeSingle < NamedNode
+        def title
+          :base_type_single
+        end
+
+        def to_s
+          elements_to_s
+        end
+
+        def opt_code
+          'single'
         end
       end
 
@@ -161,6 +212,20 @@ module IcAgent
 
         def opt_code
           'variant'
+        end
+      end
+
+      class BaseTypeFunc < NamedNode
+        def title
+          :base_type_func
+        end
+
+        def to_s
+          elements_to_s
+        end
+
+        def opt_code
+          'func'
         end
       end
 

@@ -33,24 +33,9 @@ module IcAgent
         args_arr = args.nil? ? [] : args.split(',').map(&:strip)
         args_type_arrs = []
         args_arr.each do |arg|
-          refer_type = refer_type(arg)
-          if refer_type
-            tree = build_param_tree(parser, refer_type, nil, nil)
-            args_type_arrs << tree.content[:ic_type]
-          else
-            decode_root = arg
-            args_type_arrs << IcAgent::Ast::Assembler.build_type(decode_root)
-          end
+          args_type_arrs << get_param_to_ic_type(parser, arg)
         end
-
-        rets_refer_type = refer_type(rets)
-        if rets_refer_type
-          ret_tree = build_param_tree(parser, rets_refer_type, nil, nil)
-          ret_type = ret_tree.content[:ic_type]
-        else
-          decode_ret = rets
-          ret_type = IcAgent::Ast::Assembler.build_type(decode_ret)
-        end
+        ret_type = get_param_to_ic_type(parser, rets)
 
         add_caniter_method(method_name, args, args_type_arrs, ret_type, anno)
       end
@@ -83,21 +68,10 @@ module IcAgent
       now_args
     end
 
-    def service_param_child_tree(parser, method_name, args_name)
-      arg_opt = args_name.include?(' ') ? args_name.split(' ')[0] : args_name
-      arg_child_item = []
-      if IcAgent::Candid::ALL_TYPES.include?(arg_opt)
-        arg_child_item = args_name.split(' ')[1..] if args_name.include?(' ')
-        refer_args = arg_child_item.flatten - IcAgent::Candid::ALL_TYPES
-      else
-        input_body = parser.ic_type_by_name(arg_opt)
-        refer_args = input_body.type_child_refer_items
-      end
-    end
-
     def build_param_tree(parser, type_name, current_node = nil, tree_root_node = nil)
       if current_node.nil?
         root_type = parser.ic_type_by_name(type_name)
+        byebug if root_type.nil?
         refer_nodes = root_type.type_child_refer_items.nil? ? [] : root_type.type_child_refer_items
         root_node = Tree::TreeNode.new(type_name,
                                        { 'total_child': refer_nodes.size,
@@ -210,6 +184,26 @@ module IcAgent
       param_arr = param.strip.split(' ')
       refer_type = param_arr - IcAgent::Candid::ALL_TYPES
       refer_type.empty? ? nil : refer_type[0]
+    end
+
+    def only_refer_type?(param)
+      refer_types = IcAgent::Ast::Assembler.get_params_refer_values(param)
+      param.index(' ').nil? && refer_types.size == 1
+    end
+
+    def get_param_to_ic_type(parser, param)
+      ic_refer_types = {}
+      refer_types = IcAgent::Ast::Assembler.get_params_refer_values(param)
+      refer_types.each do |refer_code|
+        ic_refer_types[refer_code] = build_param_tree(parser, refer_code, nil, nil).content[:ic_type]
+      end
+
+      if param.index(' ') || refer_types.size > 1
+        ic_type = IcAgent::Ast::Assembler.build_type(param, ic_refer_types)
+      elsif ic_refer_types.keys.size == 1
+        ic_type = ic_refer_types.values[0]
+      end
+      ic_type
     end
 
     def decode_type_arg(parser, arg)
