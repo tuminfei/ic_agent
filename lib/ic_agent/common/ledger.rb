@@ -166,7 +166,7 @@ module IcAgent
 
       attr_accessor :identity, :client, :agent, :canister
 
-      def initialize(iden)
+      def initialize(iden = nil)
         @identity = iden.nil? ? IcAgent::Identity.new : iden
         @client = IcAgent::Client.new
         @agent = IcAgent::Agent.new(@identity, @client)
