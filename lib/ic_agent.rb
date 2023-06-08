@@ -20,6 +20,9 @@ require_relative 'ic_agent/ast/writer'
 require_relative 'ic_agent/ast/assembler'
 
 require_relative 'ic_agent/common/ledger'
+require_relative 'ic_agent/common/cycles_wallet'
+require_relative 'ic_agent/common/governance'
+require_relative 'ic_agent/common/management'
 
 module IcAgent
   class Error < StandardError; end
