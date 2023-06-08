@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'byebug'
 
 describe IcAgent::Canister do
   before(:all) do
@@ -347,33 +346,15 @@ describe IcAgent::Canister do
   it 'didl factory' do
     parser = IcAgent::Ast::Parser.new
     parser.parse(@gov_didl)
+    ic_type = parser.ic_type_by_name('Tally')
+    expect(ic_type.title).to eql(:type_declaration)
+    expect(ic_type.type_param_name).to eql('Tally')
   end
 
   it 'IcAgent::Canister call' do
     gov = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
-    res = gov.list_proposals(
-      {
-        'include_reward_status' => [],
-        'before_proposal' => [],
-        'limit' => 100,
-        'exclude_topic' => [],
-        'include_status' => [1]
-      }
-    )
-    params = [{
-      'type': IcAgent::Candid::BaseTypes.record({ 'include_reward_status' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32),
-                                                  'before_proposal' => IcAgent::Candid::BaseTypes.opt(IcAgent::Candid::BaseTypes.record('id' => IcAgent::Candid::BaseTypes.nat64)),
-                                                  'limit' => IcAgent::Candid::BaseTypes.nat32,
-                                                  'exclude_topic' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32),
-                                                  'include_status' => IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.int32) }),
-      'value': { 'include_reward_status' => [],
-                 'before_proposal' => [],
-                 'limit' => 100,
-                 'exclude_topic' => [],
-                 'include_status' => [1] }
-    }]
-    data = IcAgent::Candid.encode(params)
-    puts data
+    res = gov.get_neuron_ids()
+    expect(res.size).to eql(1)
   end
 end
 

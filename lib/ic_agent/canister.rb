@@ -21,8 +21,6 @@ module IcAgent
       parser.parse(@candid)
 
       ic_service_methods = parser.ic_service_methods.elements
-      ic_type_names = parser.ic_type_names
-
       ic_service_methods.each do |item|
         service_method = item.to_obj
         method_name = service_method['ic_service_method_name']
@@ -197,6 +195,7 @@ module IcAgent
         ic_refer_types[refer_code] = build_param_tree(parser, refer_code, nil, nil).content[:ic_type]
       end
 
+      ic_type = nil
       if param.index(' ') || refer_types.size > 1
         ic_type = IcAgent::Ast::Assembler.build_type(param, ic_refer_types)
       elsif ic_refer_types.keys.size == 1

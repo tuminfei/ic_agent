@@ -72,7 +72,7 @@ module IcAgent
           if elements && elements[1] && elements[1].elements && elements[1].elements[0]
             elements[1].elements[0].elements
           else
-            elements
+            []
           end
         end
 
