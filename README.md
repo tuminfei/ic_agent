@@ -141,6 +141,15 @@ subnet_public_key = IcAgent::SyetemState.subnet_public_key(agent, "gvbup-jyaaa-a
 Create a canister instance with candid interface file and canister id, and call canister method with canister instance:
 
 ```ruby
+gov_canister = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
+res = gov_canister.get_neuron_ids()
+```
+
+#### 8. canister: ledger, management, cycles wallet ..
+
+canister common tools:
+
+```ruby
 ledger = IcAgent::Common::Ledger.new
 ledger.canister.name()
 ```
