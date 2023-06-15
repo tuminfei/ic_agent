@@ -14,8 +14,10 @@ require_relative 'ic_agent/system_state'
 require_relative 'ic_agent/canister'
 
 require_relative 'ic_agent/ast/nodes/named_nodes'
+require_relative 'ic_agent/ast/nodes/statement_nodes'
 require_relative 'ic_agent/ast/nodes/string_literal'
 require_relative 'ic_agent/ast/parser'
+require_relative 'ic_agent/ast/statement_parser'
 require_relative 'ic_agent/ast/writer'
 require_relative 'ic_agent/ast/assembler'
 

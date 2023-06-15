@@ -69,7 +69,7 @@ module IcAgent
     def build_param_tree(parser, type_name, current_node = nil, tree_root_node = nil)
       if current_node.nil?
         root_type = parser.ic_type_by_name(type_name)
-        refer_nodes = root_type.type_child_refer_items.nil? ? [] : root_type.type_child_refer_items
+        refer_nodes = root_type.type_refer_items.nil? ? [] : root_type.type_refer_items
         root_node = Tree::TreeNode.new(type_name,
                                        { 'total_child': refer_nodes.size,
                                          'all_child': refer_nodes,
@@ -119,7 +119,7 @@ module IcAgent
           else
             # non self refer
             child_type = parser.ic_type_by_name(refer_node)
-            child_refer_nodes = child_type.type_child_refer_items
+            child_refer_nodes = child_type.type_refer_items
             if child_refer_nodes.size == 0
               # set ic type
               ic_type = IcAgent::Ast::Assembler.build_type(child_type.type_param_content)
