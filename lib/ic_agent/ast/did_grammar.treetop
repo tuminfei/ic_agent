@@ -94,15 +94,11 @@ grammar DIDGrammar
   end
 
   rule service_method_params
-    source_coding / refer_coding
-  end
-
-  rule refer_coding
-    param_element (", " param_element)* <IcAgent::Ast::Nodes::IcServiceMethodParams>
+    source_coding (", " source_coding)* <IcAgent::Ast::Nodes::IcServiceMethodParams>
   end
 
   rule source_coding
-    [a-zA-Z0-9_{}:;\n ]* <IcAgent::Ast::Nodes::IcServiceMethodParams>
+    [a-zA-Z0-9_{}:;\n ]*
   end
 
   rule service_method_return_type
