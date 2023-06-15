@@ -84,59 +84,12 @@ module IcAgent
           names
         end
 
-        def type_child_item_values
-          values = []
-          type_child_items.each do |ele|
-
-            # get multi type value
-            replaced_hash = {}
-            modified_str = ele.text_value.gsub("\n", '').gsub(/record\s*{[^{}]*}/) do |match|
-              rad_id = rand(100000..999999)
-              type_name = "record_#{rad_id}"
-              replaced_hash[type_name] = match
-              type_name
-            end
-            modified_str = modified_str.gsub(/variant\s*{[^{}]*}/) do |match|
-              rad_id = rand(100000..999999)
-              type_name = "variant_#{rad_id}"
-              replaced_hash[type_name] = match
-              type_name
-            end
-            replaced_hash.each_key do |key|
-              item_arr = replaced_hash[key].strip.split(';')
-              item_arr.each do |item|
-                multi_item_arr = item.strip.split(':')
-                if multi_item_arr.size > 1
-                  item_value_arr = multi_item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
-                  item_value_arr.delete('{')
-                  item_value_arr.delete('}')
-                  item_value_arr.delete('{}')
-                  values << item_value_arr
-                else
-                  values << []
-                end
-              end
-            end
-
-            # get root type value
-            item_arr = modified_str.strip.split(':')
-            if item_arr.size > 1
-              item_value_arr = item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
-              item_value_arr.delete('{')
-              item_value_arr.delete('}')
-              item_value_arr.delete('{}')
-              item_value_arr -= replaced_hash.keys
-              values << item_value_arr
-            else
-              values << []
-            end
-          end
-          values
-        end
-
-        def type_child_refer_items
-          child_args = type_child_item_values.flatten - IcAgent::Candid::ALL_TYPES
-          child_args.uniq
+        def type_refer_items
+          source_string = self.type_param_content
+          parser = IcAgent::Ast::StatementParser.new
+          parser.parse(source_string)
+          refer_type = parser.source_tree.content[:refer_type]
+          refer_type
         end
 
         def to_s
@@ -148,7 +101,7 @@ module IcAgent
             'type_param_name' => type_param_name,
             'type_root_opt_code' => type_root_opt_code,
             'type_child_item_keys' => type_child_item_keys,
-            'type_child_item_values' => type_child_item_values
+            'type_child_item_values' => type_refer_items
           }
         end
       end
@@ -349,7 +302,7 @@ module IcAgent
         def to_obj
           obj = {}
           elements.each do |element|
-            obj[element.title.to_s] = element.text_value
+            obj[element.title.to_s] = element.text_value.gsub("\n", '')
           end
           obj
         end
@@ -396,6 +349,16 @@ module IcAgent
       end
 
       class IcServiceMethodQuery < NamedNode
+        def title
+          :ic_service_method_query
+        end
+
+        def to_s
+          elements_to_s
+        end
+      end
+
+      class BaseTypeContent < NamedNode
         def title
           :ic_service_method_query
         end

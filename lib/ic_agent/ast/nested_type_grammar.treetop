@@ -1,0 +1,106 @@
+grammar TypeGrammar
+  rule statement_block
+    ic_all_type optional_semicolon <IcAgent::Ast::Nodes::StatementBlock>
+  end
+
+  rule ic_all_type
+    (ic_type_def)+ <IcAgent::Ast::Nodes::IcTypeDef>
+  end
+
+  rule ic_type_def
+    base_type_base / base_type_vec / base_type_record / base_type_record_null / base_type_variant / base_type_opt / base_type_func / base_type_code
+  end
+
+  rule statement_content
+    (ic_base_type)+ <IcAgent::Ast::Nodes::StatementContent>
+  end
+
+  rule base_type
+    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' /
+    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func' / 'nat' / 'int' / 'blob'
+  end
+
+  rule base_type_single
+    'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' / 'nat' / 'int' / 'blob'
+  end
+
+  rule ic_base_type
+    space? base_type_key space? base_type_value? optional_semicolon <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  end
+
+  rule base_type_base
+    base_type_single+ <IcAgent::Ast::Nodes::IcBaseTypeSingle>
+  end
+
+  rule base_type_code
+    [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::IcBaseTypeOther>
+  end
+
+  rule base_type_key
+    [a-zA-Z0-9_]+ <IcAgent::Ast::Nodes::IcBaseTypeKey>
+  end
+
+  rule base_type_value
+    (':' space ic_all_type)* <IcAgent::Ast::Nodes::IcBaseTypeValue>
+  end
+
+  rule base_type_vec
+    'vec' space ic_all_type <IcAgent::Ast::Nodes::IcBaseTypeVec>
+  end
+
+  rule base_type_opt
+    'opt' space ic_all_type <IcAgent::Ast::Nodes::IcBaseTypeOpt>
+  end
+
+  rule base_type_record
+    'record' space '{' space_and_line statement_content space_and_line '}' <IcAgent::Ast::Nodes::IcBaseTypeRecord>
+  end
+
+  rule base_type_record_null
+    'record {}' <IcAgent::Ast::Nodes::IcBaseTypeRecord>
+  end
+
+  rule base_type_variant
+    'variant' space '{' space_and_line statement_content space_and_line '}' <IcAgent::Ast::Nodes::IcBaseTypeVariant>
+  end
+
+  rule base_type_func
+    'func' space? "(" service_method_params? ")" space? "->" space? "(" service_method_return_type ")" space? method_query? <IcAgent::Ast::Nodes::IcBaseTypeFunc>
+  end
+
+  rule service_method_params
+    source_coding / refer_coding
+  end
+
+  rule service_method_return_type
+    [a-zA-Z0-9_{}:;\n ]* <IcAgent::Ast::Nodes::IcServiceMethodReturn>
+  end
+
+  rule refer_coding
+    param_element (", " param_element)* <IcAgent::Ast::Nodes::IcServiceMethodParams>
+  end
+
+  rule source_coding
+    [a-zA-Z0-9_{}:;\n ]* <IcAgent::Ast::Nodes::IcServiceMethodParams>
+  end
+
+  rule param_element
+    [a-zA-Z0-9_ ]+
+  end
+
+  rule method_query
+    [a-zA-Z0-9]* <IcAgent::Ast::Nodes::IcServiceMethodQuery>
+  end
+
+  rule space_and_line
+    [\s\n]*
+  end
+
+  rule space
+    [\s]+
+  end
+
+  rule optional_semicolon
+    [;]*
+  end
+end

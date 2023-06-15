@@ -156,14 +156,16 @@ module IcAgent
         pure_child_code, replaced_hash = replace_multi_type(type_str)
         key_index = 0
         value_arr = []
-        pure_child_code.split(';').each do |item|
-          _, item_value = get_record_key_value(item, ' : ', key_index)
+        pure_child_arr = pure_child_code.strip.split(';').map(&:strip).collect { |item| item.gsub('{', '').gsub('}', '') }.reject(&:empty?)
+        pure_child_arr.each do |item|
+          _, item_value = get_record_key_value(item, ':', key_index)
           value_arr << item_value.split(' ')
           key_index += 1
         end
 
         replaced_hash.each_key do |key|
-          item_arr = replaced_hash[key].strip.split(';')
+          item_type = key.index('record') ? 'record' : 'variant'
+          item_arr = replaced_hash[key].sub('record', '').sub('variant', '').strip.split(';').map(&:strip).collect { |item| item.gsub('{', '').gsub('}', '') }.reject(&:empty?)
           item_arr.each do |item|
             multi_item_arr = item.strip.split(':')
             if multi_item_arr.size > 1
@@ -173,7 +175,7 @@ module IcAgent
               item_value_arr.delete('{}')
               value_arr << item_value_arr
             else
-              value_arr << multi_item_arr[1].strip
+              value_arr << multi_item_arr[0].strip if item_type == 'record'
             end
           end
           value_arr.delete(key)

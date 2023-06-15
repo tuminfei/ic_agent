@@ -6,7 +6,7 @@ grammar DIDGrammar
 
   rule base_type
     'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' /
-    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func' / 'nat' / 'int' / 'blob'
+    'opt' / 'vec' / 'record' / 'variant' / 'service' / 'func' / 'nat' / 'int' / blob
   end
 
   rule base_type_single
@@ -94,19 +94,11 @@ grammar DIDGrammar
   end
 
   rule service_method_params
-    source_coding / refer_coding
-  end
-
-  rule refer_coding
     param_element (", " param_element)* <IcAgent::Ast::Nodes::IcServiceMethodParams>
   end
 
-  rule source_coding
-    [a-zA-Z0-9_{}:;\n ]* <IcAgent::Ast::Nodes::IcServiceMethodParams>
-  end
-
   rule service_method_return_type
-    [a-zA-Z0-9_{}:;\n ]* <IcAgent::Ast::Nodes::IcServiceMethodReturn>
+    [a-zA-Z0-9_{}: ]* <IcAgent::Ast::Nodes::IcServiceMethodReturn>
   end
 
   rule method_query
