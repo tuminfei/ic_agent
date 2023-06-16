@@ -2,263 +2,197 @@ module IcAgent
   module Common
     class CyclesWallet
       DID_FILE = <<~DIDL_DOC
-        type EventKind = variant {
-          CyclesSent: record {
-            to: principal;
-            amount: nat64;
-            refund: nat64;
-          };
-          CyclesReceived: record {
-            from: principal;
-            amount: nat64;
-            memo: opt text;
-          };
-          AddressAdded: record {
-            id: principal;
-            name: opt text;
-            role: Role;
-          };
-          AddressRemoved: record {
-            id: principal;
-          };
-          CanisterCreated: record {
-            canister: principal;
-            cycles: nat64;
-          };
-          CanisterCalled: record {
-            canister: principal;
-            method_name: text;
-            cycles: nat64;
-          };
-          WalletDeployed: record {
-            canister: principal;
-          }
+        type Time = int;
+        type Operation =
+         variant {
+           approve;
+           mint;
+           transfer;
+           transferFrom;
+           burn;
+           canisterCalled;
+           canisterCreated;
+         };
+        type Metadata =
+         record {
+           decimals: nat8;
+           fee: nat;
+           logo: text;
+           name: text;
+           owner: principal;
+           symbol: text;
+           totalSupply: nat;
+         };
+        type TxRecord =
+         record {
+           caller: opt principal;
+           from: principal;
+           to: principal;
+           amount: nat;
+           fee: nat;
+           op: Operation;
+           timestamp: Time;
+           index: nat;
+           status: TransactionStatus;
+         };
+        type TxError = variant {
+          InsufficientAllowance;
+          InsufficientBalance;
+          ErrorOperationStyle;
+          Unauthorized;
+          LedgerTrap;
+          ErrorTo;
+          Other;
+          BlockUsed;
+          FetchRateFailed;
+          NotifyDfxFailed;
+          UnexpectedCyclesResponse;
+          AmountTooSmall;
+          InsufficientXTCFee;
         };
-
-        type EventKind128 = variant {
-          CyclesSent: record {
-            to: principal;
-            amount: nat;
-            refund: nat;
-          };
-          CyclesReceived: record {
-            from: principal;
-            amount: nat;
-            memo: opt text;
-          };
-            AddressAdded: record {
-            id: principal;
-            name: opt text;
-            role: Role;
-          };
-          AddressRemoved: record {
-            id: principal;
-          };
-          CanisterCreated: record {
-            canister: principal;
-            cycles: nat;
-          };
-          CanisterCalled: record {
-            canister: principal;
-            method_name: text;
-            cycles: nat;
-          };
-          WalletDeployed: record {
-            canister: principal;
-          };
+        type TxReceipt = variant { Ok : nat; Err : TxError };
+        type TransactionId = nat64;
+        type BurnError = variant {
+            InsufficientBalance;
+            InvalidTokenContract;
+            NotSufficientLiquidity;
         };
-
+        type BurnResult = variant {
+            Ok : TransactionId;
+            Err: BurnError;
+        };
+        type TxReceiptLegacy =
+         variant {
+           Err: variant {
+                  InsufficientAllowance;
+                  InsufficientBalance;
+                };
+           Ok: nat;
+         };
+        type MintError = variant {
+            NotSufficientLiquidity;
+        };
+        type MintResult = variant {
+            Ok : TransactionId;
+            Err: MintError;
+        };
+        type ResultCall = variant {
+            Ok : record { return: blob };
+            Err : text;
+        };
+        type CreateResult = variant {
+            Ok : record { canister_id: principal };
+            Err: text;
+        };
+        type EventDetail = variant {
+            Transfer : record {
+                from : principal;
+                to   : principal;
+            };
+            Mint     : record {
+                to   : principal;
+            };
+            Burn     : record {
+                from : principal;
+                to   : principal;
+            };
+            CanisterCalled : record {
+                from : principal;
+                canister : principal;
+                method_name: text;
+            };
+            CanisterCreated : record {
+                from : principal;
+                canister : principal;
+            };
+            TransferFrom : record {
+                caller : principal;
+                from : principal;
+                to   : principal;
+            };
+            Approve : record {
+                from : principal;
+                to   : principal;
+            };
+        };
+        type TransactionStatus = variant {
+            SUCCEEDED;
+            FAILED;
+        };
         type Event = record {
-          id: nat32;
-          timestamp: nat64;
-          kind: EventKind;
+            fee       : nat64;
+            kind      : EventDetail;
+            cycles    : nat64;
+            timestamp : nat64;
+            status : TransactionStatus;
         };
-
-        type Event128 = record {
-          id: nat32;
-          timestamp: nat64;
-          kind: EventKind128;
+        type EventsConnection = record {
+            data            : vec Event;
+            next_offset     : TransactionId;
+            next_canister_id: opt principal;
         };
-
-        type Role = variant {
-          Contact;
-          Custodian;
-          Controller;
+        type Stats = record {
+            supply: nat;
+            fee: nat;
+            history_events: nat64;
+            balance: nat64;
+            transfers_count: nat64;
+            transfers_from_count: nat64;
+            approvals_count: nat64;
+            mints_count: nat64;
+            burns_count: nat64;
+            proxy_calls_count: nat64;
+            canisters_created_count: nat64;
         };
-
-        type Kind = variant {
-          Unknown;
-          User;
-          Canister;
+        type ResultSend = variant {
+            Ok : null;
+            Err: text;
         };
-
-        // An entry in the address book. It must have an ID and a role.
-        type AddressEntry = record {
-          id: principal;
-          name: opt text;
-          kind: Kind;
-          role: Role;
-        };
-
-        type ManagedCanisterInfo = record {
-          id: principal;
-          name: opt text;
-          created_at: nat64;
-        };
-
-        type ManagedCanisterEventKind = variant {
-          CyclesSent: record {
-            amount: nat64;
-            refund: nat64;
-          };
-          Called: record {
-            method_name: text;
-            cycles: nat64;
-          };
-          Created: record {
-            cycles: nat64;
-          };
-        };
-
-        type ManagedCanisterEventKind128 = variant {
-          CyclesSent: record {
-            amount: nat;
-            refund: nat;
-          };
-          Called: record {
-            method_name: text;
-            cycles: nat;
-          };
-          Created: record {
-            cycles: nat;
-          };
-        };
-
-        type ManagedCanisterEvent = record {
-          id: nat32;
-          timestamp: nat64;
-          kind: ManagedCanisterEventKind;
-        };
-
-        type ManagedCanisterEvent128 = record {
-          id: nat32;
-          timestamp: nat64;
-          kind: ManagedCanisterEventKind128;
-        };
-
-        type ReceiveOptions = record {
-          memo: opt text;
-        };
-
-        type WalletResultCreate = variant {
-          Ok : record { canister_id: principal };
-          Err: text;
-        };
-
-        type WalletResult = variant {
-          Ok : null;
-          Err : text;
-        };
-
-        type WalletResultCall = variant {
-          Ok : record { return: blob };
-          Err : text;
-        };
-
-        type CanisterSettings = record {
-          controller: opt principal;
-          controllers: opt vec principal;
-          compute_allocation: opt nat;
-          memory_allocation: opt nat;
-          freezing_threshold: opt nat;
-        };
-
-        type CreateCanisterArgs = record {
-          cycles: nat64;
-          settings: CanisterSettings;
-        };
-
-        type CreateCanisterArgs128 = record {
-          cycles: nat;
-          settings: CanisterSettings;
-        };
-
-        // Assets
-        type HeaderField = record { text; text; };
-
-        type HttpRequest = record {
-          method: text;
-          url: text;
-          headers: vec HeaderField;
-          body: blob;
-        };
-
-        type HttpResponse = record {
-          status_code: nat16;
-          headers: vec HeaderField;
-          body: blob;
-          streaming_strategy: opt StreamingStrategy;
-        };
-
-        type StreamingCallbackHttpResponse = record {
-          body: blob;
-          token: opt Token;
-        };
-
-        type Token = record {};
-
-        type StreamingStrategy = variant {
-          Callback: record {
-            callback: func (Token) -> (StreamingCallbackHttpResponse) query;
-            token: Token;
-          };
-        };
-
         service : {
-          wallet_api_version: () -> (text) query;
-          name: () -> (opt text) query;
-          set_name: (text) -> ();
-          get_controllers: () -> (vec principal) query;
-          add_controller: (principal) -> ();
-          remove_controller: (principal) -> (WalletResult);
-          get_custodians: () -> (vec principal) query;
-          authorize: (principal) -> ();
-          deauthorize: (principal) -> (WalletResult);
-          wallet_balance: () -> (record { amount: nat64 }) query;
-          wallet_balance128: () -> (record { amount: nat }) query;
-          wallet_send: (record { canister: principal; amount: nat64 }) -> (WalletResult);
-          wallet_send128: (record { canister: principal; amount: nat }) -> (WalletResult);
-          wallet_receive: (opt ReceiveOptions) -> ();
-          wallet_create_canister: (CreateCanisterArgs) -> (WalletResultCreate);
-          wallet_create_canister128: (CreateCanisterArgs128) -> (WalletResultCreate);
-          wallet_create_wallet: (CreateCanisterArgs) -> (WalletResultCreate);
-          wallet_create_wallet128: (CreateCanisterArgs128) -> (WalletResultCreate);
-          wallet_store_wallet_wasm: (record {
-            wasm_module: blob;
-          }) -> ();
+           allowance: (principal, principal) -> (nat) query;
+           approve: (principal, nat) -> (TxReceipt);
+           balanceOf: (principal) -> (nat) query;
+           decimals: () -> (nat8) query;
+           getMetadata: () -> (Metadata) query;
+           getTransaction: (nat) -> (TxRecord);
+           getTransactions: (nat, nat) -> (vec TxRecord);
+           historySize: () -> (nat) query;
+           logo: () -> (text) query;
+           nameErc20: () -> (text) query;
+           name: () -> (text) query;
+           symbol: () -> (text) query;
+           totalSupply: () -> (nat) query;
+           transferErc20: (principal, nat) -> (TxReceiptLegacy);
+           transfer: (principal, nat) -> (TxReceipt);
+           transferFrom: (principal, principal, nat) -> (TxReceipt);
+           mint: (principal, nat) -> (MintResult);
+           isBlockUsed : (nat64) -> (bool) query;
+           getBlockUsed : () -> (vec nat64) query;
+           get_map_block_used: (nat64) -> (opt nat64) query;
+           mint_by_icp: (opt vec nat8, nat64) -> (TxReceipt);
+           mint_by_icp_recover: (opt vec nat8, nat64, principal) -> (TxReceipt);
+           burn: (record { canister_id: principal; amount: nat64 }) -> (BurnResult);
+           balance: (opt principal) -> (amount: nat64);
+           get_transaction : (id: TransactionId) -> (opt Event);
+           events : (record { offset: opt nat64; limit: nat16 }) -> (EventsConnection) query;
+           halt : () -> ();
+           stats : () -> (Stats) query;
+           wallet_balance: () -> (record { amount: nat64 }) query;
+           wallet_send: (record { canister: principal; amount: nat64 }) -> (ResultSend);
+           wallet_create_canister: (record {
+              cycles: nat64;
+              controller: opt principal;
+           }) -> (CreateResult);
+          wallet_create_wallet: (record {
+              cycles: nat64;
+              controller: opt principal;
+          }) -> (CreateResult);
           wallet_call: (record {
-            canister: principal;
-            method_name: text;
-            args: blob;
-            cycles: nat64;
-          }) -> (WalletResultCall);
-          wallet_call128: (record {
-            canister: principal;
-            method_name: text;
-            args: blob;
-            cycles: nat;
-          }) -> (WalletResultCall);
-          add_address: (address: AddressEntry) -> ();
-          list_addresses: () -> (vec AddressEntry) query;
-          remove_address: (address: principal) -> (WalletResult);
-          get_events: (opt record { from: opt nat32; to: opt nat32; }) -> (vec Event) query;
-          get_events128: (opt record { from: opt nat32; to: opt nat32; }) -> (vec Event128) query;
-          get_chart: (opt record { count: opt nat32; precision: opt nat64; } ) -> (vec record { nat64; nat64; }) query;
-          list_managed_canisters: (record { from: opt nat32; to: opt nat32; }) -> (vec ManagedCanisterInfo, nat32) query;
-          get_managed_canister_events: (record { canister: principal; from: opt nat32; to: opt nat32; }) -> (opt vec ManagedCanisterEvent) query;
-          get_managed_canister_events128: (record { canister: principal; from: opt nat32; to: opt nat32; }) -> (opt vec ManagedCanisterEvent128) query;
-          set_short_name: (principal, opt text) -> (opt ManagedCanisterInfo);
-          http_request: (request: HttpRequest) -> (HttpResponse) query;
+              canister: principal;
+              method_name: text;
+              args: blob;
+              cycles: nat64;
+          }) -> (ResultCall);
         }
       DIDL_DOC
 
