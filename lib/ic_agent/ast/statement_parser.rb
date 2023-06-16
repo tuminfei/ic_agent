@@ -64,8 +64,16 @@ module IcAgent
 
             # set refer_type
             unless Regexp.union(REFER_TYPE_KEYS) === root_node.source_content
-              param_arr = root_node.source_content.strip.split(' ').collect { |v| v.strip.gsub(';', '') }
-              param_arr = param_arr - IcAgent::Candid::ALL_TYPES
+              # func type content
+              if root_node.source_content.index('->')
+                param_arr = []
+                temp_param_arr = root_node.source_content.strip.split(' ').collect { |v| v.strip.gsub(';', '') }
+                temp_param_arr.delete_if {|v| !v.index('(') && !v.index(')') }
+                temp_param_arr.each {|v| param_arr = param_arr + v.sub('(', '').sub(')', '').split(',')}
+              else
+                param_arr = root_node.source_content.strip.split(' ').collect { |v| v.strip.gsub(';', '') }
+                param_arr = param_arr - IcAgent::Candid::ALL_TYPES
+              end
               tree_root_node.content[:refer_type] = (tree_root_node.content[:refer_type] + param_arr).uniq
             end
 

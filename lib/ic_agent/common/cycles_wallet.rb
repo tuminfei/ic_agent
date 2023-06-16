@@ -228,7 +228,7 @@ module IcAgent
           wallet_balance128: () -> (record { amount: nat }) query;
           wallet_send: (record { canister: principal; amount: nat64 }) -> (WalletResult);
           wallet_send128: (record { canister: principal; amount: nat }) -> (WalletResult);
-          wallet_receive: (opt ReceiveOptions) -> ();  // Endpoint for receiving cycles.
+          wallet_receive: (opt ReceiveOptions) -> ();
           wallet_create_canister: (CreateCanisterArgs) -> (WalletResultCreate);
           wallet_create_canister128: (CreateCanisterArgs128) -> (WalletResultCreate);
           wallet_create_wallet: (CreateCanisterArgs) -> (WalletResultCreate);

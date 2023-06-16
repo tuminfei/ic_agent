@@ -33,9 +33,14 @@ module IcAgent
         args_arr.each do |arg|
           args_type_arrs << get_param_to_ic_type(parser, arg)
         end
-        ret_type = get_param_to_ic_type(parser, rets)
 
-        add_caniter_method(method_name, args, args_type_arrs, ret_type, anno)
+        rets_arr = rets.nil? ? [] : rets.split(',').map(&:strip)
+        rets_type_arr = []
+        rets_arr.each do |ret|
+          rets_type_arr << get_param_to_ic_type(parser, ret)
+        end
+
+        add_caniter_method(method_name, args, args_type_arrs, rets_type_arr, anno)
       end
     end
 
@@ -183,11 +188,6 @@ module IcAgent
       refer_type.empty? ? nil : refer_type[0]
     end
 
-    def only_refer_type?(param)
-      refer_types = IcAgent::Ast::Assembler.get_params_refer_values(param)
-      param.index(' ').nil? && refer_types.size == 1
-    end
-
     def get_param_to_ic_type(parser, param)
       ic_refer_types = {}
       refer_types = IcAgent::Ast::Assembler.get_params_refer_values(param)
@@ -235,14 +235,14 @@ module IcAgent
       new_root_text
     end
 
-    def add_caniter_method(method_name, type_args, args_types, rets_type, anno = nil)
+    def add_caniter_method(method_name, type_args, args_types, rets_types, anno = nil)
       self.class.class_eval do
         define_method(method_name) do |*args|
           init_method_name = method_name
           init_method_args = type_args.nil? ? [] : type_args.split(',').map(&:strip)
           init_method_anno = anno
           init_method_types = args_types
-          init_method_ret_type = rets_type
+          init_method_ret_type = rets_types
 
           if init_method_args.length != args.length
             raise ArgumentError, 'Arguments length not match'
