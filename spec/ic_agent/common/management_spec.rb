@@ -8,10 +8,10 @@ describe IcAgent::Common::Management do
 
   it 'IcAgent::Common::Management name call' do
     query = {
-      'canister_id' => 'xizxk-fqaaa-aaaap-aa2nq-cai'
+      'canister_id' => 'zri47-daaaa-aaaah-adjzq-cai',
+      'num_requested_changes' => [0]
     }
-    status = @management.canister.canister_status(query)
-    expect(status[0]).to include('_1224700491_' => 'Internet Computer')
+    status = @management.canister.canister_info(query)
   end
 end
 

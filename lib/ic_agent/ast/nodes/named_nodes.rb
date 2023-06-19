@@ -19,6 +19,10 @@ module IcAgent
         def elements_to_s
           elements.map(&:to_s).join("\n")
         end
+
+        def source_content
+          self.text_value.strip
+        end
       end
 
       class Instruction < NamedNode
@@ -57,11 +61,11 @@ module IcAgent
         end
 
         def type_param_name
-          elements[0].text_value
+          elements[0].source_content
         end
 
         def type_param_content
-          elements[1].text_value.gsub("\n", '').gsub(';}', '}')
+          elements[1].source_content.gsub("\n", '').gsub(';}', '}')
         end
 
         def type_root_opt_code

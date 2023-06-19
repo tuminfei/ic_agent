@@ -29,9 +29,9 @@ module IcAgent
         tree = @parser.parse(data)
         raise Exception, "Parse error at offset: #{@parser.index} #{@parser.failure_reason}" if tree.nil?
 
-
         # this edits the tree in place
         clean_tree(tree)
+
         # generate soure tree
         gen_source_tree(tree)
         @tree = tree

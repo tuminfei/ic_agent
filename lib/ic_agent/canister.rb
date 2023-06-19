@@ -191,6 +191,8 @@ module IcAgent
     def get_param_to_ic_type(parser, param)
       ic_refer_types = {}
       refer_types = IcAgent::Ast::Assembler.get_params_refer_values(param)
+      # param self is refer_values
+      refer_types << param unless param.index(' ') || IcAgent::Candid::ALL_TYPES.any?(param)
       refer_types.each do |refer_code|
         ic_refer_types[refer_code] = build_param_tree(parser, refer_code, nil, nil).content[:ic_type]
       end
