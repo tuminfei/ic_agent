@@ -1,0 +1,22 @@
+grammar RecordParser
+  # record { key1: text; key2: 42; value1; value2; }
+  rule record
+    'record' space '{' space? (pair / value)* space? '}' <IcAgent::Ast::Nodes::IcBaseTypeRecord>
+  end
+
+  rule pair
+    space? identifier space? ':' space? identifier ';' <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  end
+
+  rule value
+    space? identifier ';' <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  end
+
+  rule identifier
+    [a-zA-Z0-9_]*
+  end
+
+  rule space
+    [\s]+
+  end
+end

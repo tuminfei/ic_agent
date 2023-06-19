@@ -153,34 +153,10 @@ module IcAgent
       end
 
       def self.get_params_refer_values(type_str)
-        pure_child_code, replaced_hash = replace_multi_type(type_str)
-        key_index = 0
-        value_arr = []
-        pure_child_arr = pure_child_code.strip.split(';').map(&:strip).collect { |item| item.gsub('{', '').gsub('}', '') }.reject(&:empty?)
-        pure_child_arr.each do |item|
-          _, item_value = get_record_key_value(item, ':', key_index)
-          value_arr << item_value.split(' ')
-          key_index += 1
-        end
-
-        replaced_hash.each_key do |key|
-          item_type = key.index('record') ? 'record' : 'variant'
-          item_arr = replaced_hash[key].sub('record', '').sub('variant', '').strip.split(';').map(&:strip).collect { |item| item.gsub('{', '').gsub('}', '') }.reject(&:empty?)
-          item_arr.each do |item|
-            multi_item_arr = item.strip.split(':')
-            if multi_item_arr.size > 1
-              item_value_arr = multi_item_arr[1].strip.split(' ').collect { |v| v.strip.gsub(';', '') }
-              item_value_arr.delete('{')
-              item_value_arr.delete('}')
-              item_value_arr.delete('{}')
-              value_arr << item_value_arr
-            else
-              value_arr << multi_item_arr[0].strip if item_type == 'record'
-            end
-          end
-          value_arr.delete(key)
-        end
-        value_arr.flatten.uniq - IcAgent::Candid::ALL_TYPES - replaced_hash.keys
+        parser = IcAgent::Ast::StatementParser.new
+        parser.parse(type_str)
+        refer_type = parser.source_tree.content[:refer_type]
+        refer_type
       end
 
       def self.recover_type(type_str, multi_types)

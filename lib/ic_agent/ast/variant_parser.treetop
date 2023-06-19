@@ -1,0 +1,21 @@
+grammar VariantParser
+  rule variant
+    'variant' space? '{' space? (pair / key)* space? '}' <IcAgent::Ast::Nodes::IcBaseTypeVariant>
+  end
+
+  rule pair
+    space? identifier space? ':' space? identifier ';' <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  end
+
+  rule key
+    space? identifier ';' <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  end
+
+  rule identifier
+    [a-zA-Z0-9_]*
+  end
+
+  rule space
+    [\s]+
+  end
+end

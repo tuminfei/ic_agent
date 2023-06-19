@@ -11,8 +11,12 @@ grammar TypeGrammar
     base_type_base / base_type_vec / base_type_record / base_type_record_null / base_type_variant / base_type_opt / base_type_func / base_type_code
   end
 
-  rule statement_content
-    (ic_base_type)+ <IcAgent::Ast::Nodes::StatementContent>
+  rule record_statement_content
+    (ic_base_type_pair / ic_base_type_value)* <IcAgent::Ast::Nodes::StatementContent>
+  end
+
+  rule variant_statement_content
+    (ic_base_type_pair / ic_base_type_key)* <IcAgent::Ast::Nodes::StatementContent>
   end
 
   rule base_type
@@ -24,8 +28,16 @@ grammar TypeGrammar
     'bool' / 'text' / 'null' / 'reserved' / 'empty' / 'principal' / 'nat8' / 'nat16' / 'nat32' / 'nat64' / 'int8' / 'int16' / 'int32' / 'int64' / 'float32' / 'float64' / 'nat' / 'int' / 'blob'
   end
 
-  rule ic_base_type
-    space? base_type_key space? base_type_value? optional_semicolon <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  rule ic_base_type_pair
+    space? base_type_key space? ':' space? base_type_value ';'? <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  end
+
+  rule ic_base_type_key
+    space? base_type_key space? ';'? <IcAgent::Ast::Nodes::IcBaseTypeChild>
+  end
+
+  rule ic_base_type_value
+    base_type_value space? ';'? <IcAgent::Ast::Nodes::IcBaseTypeChild>
   end
 
   rule base_type_base
@@ -41,7 +53,7 @@ grammar TypeGrammar
   end
 
   rule base_type_value
-    (':' space ic_all_type)* <IcAgent::Ast::Nodes::IcBaseTypeValue>
+    space? ic_all_type <IcAgent::Ast::Nodes::IcBaseTypeValue>
   end
 
   rule base_type_vec
@@ -53,7 +65,7 @@ grammar TypeGrammar
   end
 
   rule base_type_record
-    'record' space '{' space_and_line statement_content space_and_line '}' <IcAgent::Ast::Nodes::IcBaseTypeRecord>
+    'record' space '{' space_and_line? record_statement_content space_and_line? '}' <IcAgent::Ast::Nodes::IcBaseTypeRecord>
   end
 
   rule base_type_record_null
@@ -61,7 +73,7 @@ grammar TypeGrammar
   end
 
   rule base_type_variant
-    'variant' space '{' space_and_line statement_content space_and_line '}' <IcAgent::Ast::Nodes::IcBaseTypeVariant>
+    'variant' space '{' space_and_line variant_statement_content space_and_line '}' <IcAgent::Ast::Nodes::IcBaseTypeVariant>
   end
 
   rule base_type_func

@@ -228,7 +228,7 @@ module IcAgent
           wallet_balance128: () -> (record { amount: nat }) query;
           wallet_send: (record { canister: principal; amount: nat64 }) -> (WalletResult);
           wallet_send128: (record { canister: principal; amount: nat }) -> (WalletResult);
-          wallet_receive: (opt ReceiveOptions) -> ();  // Endpoint for receiving cycles.
+          wallet_receive: (opt ReceiveOptions) -> ();
           wallet_create_canister: (CreateCanisterArgs) -> (WalletResultCreate);
           wallet_create_canister128: (CreateCanisterArgs128) -> (WalletResultCreate);
           wallet_create_wallet: (CreateCanisterArgs) -> (WalletResultCreate);
@@ -248,9 +248,7 @@ module IcAgent
             args: blob;
             cycles: nat;
           }) -> (WalletResultCall);
-          add_address: (address: AddressEntry) -> ();
           list_addresses: () -> (vec AddressEntry) query;
-          remove_address: (address: principal) -> (WalletResult);
           get_events: (opt record { from: opt nat32; to: opt nat32; }) -> (vec Event) query;
           get_events128: (opt record { from: opt nat32; to: opt nat32; }) -> (vec Event128) query;
           get_chart: (opt record { count: opt nat32; precision: opt nat64; } ) -> (vec record { nat64; nat64; }) query;
@@ -258,7 +256,6 @@ module IcAgent
           get_managed_canister_events: (record { canister: principal; from: opt nat32; to: opt nat32; }) -> (opt vec ManagedCanisterEvent) query;
           get_managed_canister_events128: (record { canister: principal; from: opt nat32; to: opt nat32; }) -> (opt vec ManagedCanisterEvent128) query;
           set_short_name: (principal, opt text) -> (opt ManagedCanisterInfo);
-          http_request: (request: HttpRequest) -> (HttpResponse) query;
         }
       DIDL_DOC
 
