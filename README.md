@@ -13,12 +13,13 @@ gem install ic_agent
 
 ### Features
 
-1. candid types encode & decode
-2. support secp256k1 & ed25519 identity
-3. canister DID file parsing
-4. canister class, initialized with canister id and DID file
-5. common canister interfaces: ledger, management, nns, cycles wallet
-6. BLS Verify
+1. principal create and generate
+2. candid types encode & decode
+3. support secp256k1 & ed25519 identity
+4. canister DID file parsing
+5. canister class, initialized with canister id and DID file
+6. common canister interfaces: ledger, management, nns, cycles wallet
+7. BLS Verify
 
 ### Modules & Usage
 
