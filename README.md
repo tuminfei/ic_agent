@@ -142,7 +142,27 @@ subnet_public_key = IcAgent::SyetemState.subnet_public_key(agent, "gvbup-jyaaa-a
 Create a canister instance with candid interface file and canister id, and call canister method with canister instance:
 
 ```ruby
-gov_canister = IcAgent::Canister.new(@agent, @gov_canister_id, @gov_didl)
+agent = IcAgent::Agent.new(iden, client)
+gov_canister_id = 'rrkah-fqaaa-aaaaa-aaaaq-cai'
+gov_didl = <<~DIDL_DOC
+      // type
+      type AccountIdentifier = record { hash : vec nat8 };
+      type Action = variant {
+        RegisterKnownNeuron : KnownNeuron;
+        ManageNeuron : ManageNeuron;
+        ExecuteNnsFunction : ExecuteNnsFunction;
+        RewardNodeProvider : RewardNodeProvider;
+        SetDefaultFollowees : SetDefaultFollowees;
+        RewardNodeProviders : RewardNodeProviders;
+        ManageNetworkEconomics : NetworkEconomics;
+        ApproveGenesisKyc : ApproveGenesisKyc;
+        AddOrRemoveNodeProvider : AddOrRemoveNodeProvider;
+        Motion : Motion;
+      };
+      ......
+DIDL_DOC
+
+gov_canister = IcAgent::Canister.new(agent, gov_canister_id, gov_didl)
 res = gov_canister.get_neuron_ids()
 ```
 
