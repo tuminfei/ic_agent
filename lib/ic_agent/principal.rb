@@ -72,7 +72,7 @@ module IcAgent
     end
 
     def to_account_id(sub_account = 0)
-      AccountIdentifier.new(self, sub_account)
+      AccountIdentifier.generate(self, sub_account)
     end
 
     def to_s
@@ -97,11 +97,12 @@ module IcAgent
       to_str
     end
 
-    def self.new(principal, sub_account = 0)
-      sha224 = Digest::SHA224.new
+    def self.generate(principal, sub_account = 0)
+      sha224 = OpenSSL::Digest::SHA224.new
       sha224 << "\naccount-id"
       sha224 << principal.bytes
-      sub_account = [sub_account].pack('N')
+      format_sub_account = "%08d" % sub_account
+      sub_account = format_sub_account.chars.map {|c| c.to_i}.pack('N*')
       sha224 << sub_account
       hash = sha224.digest
       checksum = Zlib.crc32(hash) & 0xFFFFFFFF
