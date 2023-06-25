@@ -66,6 +66,10 @@ module IcAgent
       s = vec.sort.join
       Digest::SHA256.digest(s)
     end
+
+    def self.decode_blob(blob_bytes)
+      blob_bytes.pack('C*')
+    end
   end
 end
 
