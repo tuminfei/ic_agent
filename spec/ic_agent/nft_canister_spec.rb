@@ -279,6 +279,9 @@ describe IcAgent::Canister do
     nft = IcAgent::Canister.new(@agent, @nft_canister_id, @nft_didl)
     res = nft.getTokens()
     expect(res[0].size).to be > 1
+    metadata_str = IcAgent::Utils.decode_blob(res[0][0][1].values[0].values[0][0])
+    metadata = JSON.parse(metadata_str)
+    expect(metadata['name']).to eql('The X Collection #0')
   end
 end
 
