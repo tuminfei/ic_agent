@@ -12,6 +12,18 @@ module IcAgent
       lookup_path(path, cert.value['tree'])
     end
 
+    def self.signature(cert)
+      cert.value['signature']
+    end
+
+    def self.delegation(cert)
+      cert.value['delegation']
+    end
+
+    def self.tree(cert)
+      cert.value['tree']
+    end
+
     def self.lookup_path(path, tree)
       offset = 0
       if path.length == 0
@@ -50,6 +62,33 @@ module IcAgent
         end
       end
       nil
+    end
+
+    def self.reconstruct(t)
+      case t[0]
+      when IcAgent::NodeId::EMPTY # NodeId.Empty
+        domain_sep = domain_sep('ic-hashtree-empty')
+        Digest::SHA256.digest(domain_sep)
+      when IcAgent::NodeId::PRUNED # NodeId.Pruned
+        t[1]
+      when IcAgent::NodeId::LEAF # NodeId.Leaf
+        domain_sep = domain_sep('ic-hashtree-leaf')
+        Digest::SHA256.digest(domain_sep + t[1])
+      when IcAgent::NodeId::LABELED # NodeId.Labeled
+        domain_sep = domain_sep('ic-hashtree-labeled')
+        Digest::SHA256.digest(domain_sep + t[1] + reconstruct(t[2]))
+      when IcAgent::NodeId::FORK # NodeId.Fork
+        domain_sep = domain_sep('ic-hashtree-fork')
+        Digest::SHA256.digest(domain_sep + reconstruct(t[1]) + reconstruct(t[2]))
+      else
+        raise 'unreachable'
+      end
+    end
+
+    def self.domain_sep(s)
+      len = [s.bytesize].pack('C')
+      str = s.encode(Encoding::UTF_8)
+      len + str
     end
   end
 end

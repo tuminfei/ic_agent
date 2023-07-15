@@ -1,5 +1,7 @@
 require 'cbor'
+require 'bls'
 require 'ctf_party'
+require 'bitcoin'
 
 module IcAgent
   class Request
@@ -60,8 +62,7 @@ module IcAgent
     end
 
     def read_state_endpoint(canister_id, data)
-      result = @client.read_state(canister_id, data)
-      result
+      @client.read_state(canister_id, data)
     end
 
     def query_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil)
@@ -143,6 +144,35 @@ module IcAgent
       CBOR.decode(d.value['certificate'])
     end
 
+    def read_state_raw_and_verify(canister_id, paths)
+      req = {
+        'request_type' => 'read_state',
+        'sender' => @identity.sender.bytes,
+        'paths' => paths,
+        'ingress_expiry' => get_expiry_date
+      }
+      _, data = Request.sign_request(req, @identity)
+      ret = read_state_endpoint(canister_id, data)
+      if ret == 'Invalid path requested.'
+        raise ValueError, 'Invalid path requested!'
+      elsif ret == 'Could not parse body as read request: invalid type: byte array, expected a sequence'
+        raise ValueError, 'Could not parse body as read request: invalid type: byte array, expected a sequence'
+      end
+
+      begin
+        d = CBOR.decode(ret)
+      rescue StandardError
+        raise ValueError, "Unable to decode cbor value: #{ret}"
+      end
+      cert = CBOR.decode(d.value['certificate'])
+
+      if verify(cert, canister_id)
+        cert
+      else
+        false
+      end
+    end
+
     def request_status_raw(canister_id, req_id)
       paths = [['request_status', req_id]]
       cert = read_state_raw(canister_id, paths)
@@ -171,6 +201,76 @@ module IcAgent
       else
         [status, _]
       end
+    end
+
+    def verify(cert, canister_id)
+      sig = IcAgent::Certificate.signature(cert).str2hex
+      tree = IcAgent::Certificate.tree(cert)
+      delegation = IcAgent::Certificate.delegation(cert)
+      root_hash = IcAgent::Certificate.reconstruct(tree).str2hex
+      msg = IcAgent::IC_STATE_ROOT_DOMAIN_SEPARATOR + root_hash
+      der_key = check_delegation(delegation, canister_id, true)
+      public_key_hash = extract_der(der_key).str2hex
+      byebug
+      public_key = BLS::PointG1.from_hex(public_key_hash)
+
+      BLS.verify(sig, msg, public_key)
+    end
+
+    def check_delegation(delegation, effective_canister_id, disable_range_check)
+      return @root_key unless delegation
+
+      begin
+        cert = CBOR.decode(delegation['certificate'])
+      rescue CBOR::MalformedFormatError => e
+        raise TypeError, "certificate CBOR::MalformedFormatError: #{delegation['certificate']}"
+      end
+
+      path = ['subnet', delegation['subnet_id'], 'canister_ranges']
+      canister_range =  IcAgent::Certificate.lookup(path, cert)
+
+      begin
+        ranges = []
+        ranges_json = CBOR.decode(canister_range).values[1]
+
+        ranges_json.each do |range_json|
+          range = {}
+          range['low'] = Principal.from_hex(range_json[0])
+          range['high'] = Principal.from_hex(range_json[1])
+          ranges << range
+        end
+
+        if !disable_range_check && !principal_is_within_ranges(effective_canister_id, ranges)
+          raise AgentError 'certificate CERTIFICATE_NOT_AUTHORIZED'
+        end
+      rescue Exception => e
+        raise AgentError "certificate INVALID_CBOR_DATA, canister_range: #{canister_range.to_s}"
+      end
+
+      path = ['subnet', delegation['subnet_id'], 'public_key']
+      IcAgent::Certificate.lookup(path, cert)
+    end
+
+    def principal_is_within_ranges(principal, ranges)
+      ranges.each do |range|
+        return true if range['low'].lt_eq(principal) && range['high'].gt_eq(principal)
+      end
+      false
+    end
+
+    def extract_der(der_buf)
+      bls_der_prefix = OpenSSL::BN.from_hex(IcAgent::BLS_DER_PREFIX).to_s(2)
+      expected_length = bls_der_prefix.bytesize + IcAgent::BLS_KEY_LENGTH
+      if der_buf.bytesize != expected_length
+        raise TypeError, "BLS DER-encoded public key must be #{expected_length} bytes long"
+      end
+
+      prefix = der_buf.byteslice(0, bls_der_prefix.bytesize)
+      if prefix != bls_der_prefix
+        raise TypeError, "BLS DER-encoded public key is invalid. Expect the following prefix: #{bls_der_prefix}, but get #{prefix}"
+      end
+
+      der_buf.byteslice(bls_der_prefix.bytesize..-1)
     end
   end
 end

@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   # spec.add_dependency "example-gem", "~> 1.0"
   spec.add_dependency 'base32', '~> 0.3.4'
   spec.add_dependency 'bitcoin-ruby', '~> 0.0.20'
+  spec.add_dependency 'bls12-381', '~> 0.2.2'
   spec.add_dependency 'cbor', '~> 0.5.9.6'
   spec.add_dependency 'ctf-party', '~> 2.3'
   spec.add_dependency 'ecdsa', '~> 1.2'

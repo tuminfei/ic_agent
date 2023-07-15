@@ -78,6 +78,37 @@ module IcAgent
     def to_s
       to_str
     end
+
+    def compare_to(other)
+      (0...[self.bytes.length, other.bytes.length].min).each do |i|
+        if self.bytes[i] < other.bytes[i]
+          return 'lt'
+        elsif self.bytes[i] > other.bytes[i]
+          return 'gt'
+        end
+      end
+
+      if self.bytes.length < other.bytes.length
+        'lt'
+      elsif self.bytes.length > other.bytes.length
+        'gt'
+      else
+        'eq'
+      end
+    end
+
+    # Utility method checking whether a provided Principal is less than or equal to the current one using the `compareTo` method
+    def lt_eq(other)
+      cmp = compare_to(other)
+      %w[lt eq].include?(cmp)
+    end
+
+    # Utility method checking whether a provided Principal is greater than or equal to the current one using the `compareTo` method
+    def gt_eq(other)
+      cmp = compare_to(other)
+      %w[gt eq].include?(cmp)
+    end
+
   end
 
   class AccountIdentifier
