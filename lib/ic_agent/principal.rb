@@ -7,10 +7,10 @@ module IcAgent
   MAX_LENGTH_IN_BYTES = 29
 
   class PrincipalSort
-    OpaqueId = 1
-    SelfAuthenticating = 2
-    DerivedId = 3
-    Anonymous = 4
+    OPAQUE_ID = 1
+    SELF_AUTHENTICATING = 2
+    DERIVED_ID = 3
+    ANONYMOUS = 4
     # Unassigned
   end
 
@@ -18,6 +18,10 @@ module IcAgent
   class Principal
     attr_reader :len, :bytes, :is_principal, :hex
 
+    # Initializes a new instance of the Principal class.
+    #
+    # Parameters:
+    # - bytes: The bytes representing the principal. Defaults to an empty string.
     def initialize(bytes: ''.b)
       @len = bytes.length
       @bytes = bytes
@@ -25,31 +29,41 @@ module IcAgent
       @is_principal = true
     end
 
+    # Creates a new Principal instance representing the management canister.
+    #
+    # Returns: The Principal instance representing the management canister.
     def self.management_canister
       Principal.new
     end
 
-
-    # self_authenticating
-    # @param [Object] pubkey
-    # @return [IcAgent::Principal]
+    # Creates a new self-authenticating Principal.
+    #
+    # Parameters:
+    # - pubkey: The public key associated with the self-authenticating Principal.
+    #
+    # Returns: The self-authenticating Principal instance.
     def self.self_authenticating(pubkey)
       # check pubkey.size for is ed25519 or secp256k1
       pubkey = [pubkey].pack('H*') if pubkey.size != 44 && pubkey.size != 88
 
       hash_ = OpenSSL::Digest::SHA224.digest(pubkey)
-      hash_ += [PrincipalSort::SelfAuthenticating].pack('C')
+      hash_ += [PrincipalSort::SELF_AUTHENTICATING].pack('C')
       Principal.new(bytes: hash_)
     end
 
-    # @return anonymous [IcAgent::Principal]
+    # Creates a new anonymous Principal.
+    #
+    # Returns: The anonymous Principal instance.
     def self.anonymous
       Principal.new(bytes: "\x04".b)
     end
 
-
-    # @param s, example: i3o4q-ljrhf-s4evb-ux72j-qdb6g-wzq66-73nfa-h2k3x-dw7zj-4cxkd-zae
-    # @return [IcAgent::Principal]
+    # Creates a new Principal from a string representation.
+    #
+    # Parameters:
+    # - s: The string representation of the Principal.
+    #
+    # Returns: The Principal instance.
     def self.from_str(s)
       s1 = s.delete('-')
       pad_len = ((s1.length / 8.0).ceil * 8) - s1.length
@@ -62,11 +76,19 @@ module IcAgent
       p
     end
 
+    # Creates a new Principal from a hexadecimal string representation.
+    #
+    # Parameters:
+    # - s: The hexadecimal string representation of the Principal.
+    #
+    # Returns: The Principal instance.
     def self.from_hex(s)
       Principal.new(bytes: [s].pack('H*'))
     end
 
-    # @return [String] example: i3o4q-ljrhf-s4evb-ux72j-qdb6g-wzq66-73nfa-h2k3x-dw7zj-4cxkd-zae
+    # Converts the Principal to a string representation.
+    #
+    # Returns: The string representation of the Principal.
     def to_str
       checksum = Zlib.crc32(@bytes) & 0xFFFFFFFF
       b = ''
@@ -81,8 +103,12 @@ module IcAgent
       ret + s
     end
 
-    # @param [Integer] sub_account
-    # @return [IcAgent::AccountIdentifier] account_id
+    # Converts the Principal to an AccountIdentifier.
+    #
+    # Parameters:
+    # - sub_account: The sub-account identifier. Defaults to 0.
+    #
+    # Returns: The AccountIdentifier instance.
     def to_account_id(sub_account = 0)
       AccountIdentifier.generate(self, sub_account)
     end
@@ -91,8 +117,12 @@ module IcAgent
       to_str
     end
 
-    # @param [Object] other
-    # @return compare results
+    # Compares the Principal with another Principal.
+    #
+    # Parameters:
+    # - other: The other Principal to compare with.
+    #
+    # Returns: The comparison result as a string ('lt', 'eq', or 'gt').
     def compare_to(other)
       (0...[self.bytes.length, other.bytes.length].min).each do |i|
         if self.bytes[i] < other.bytes[i]
@@ -111,29 +141,45 @@ module IcAgent
       end
     end
 
-    # Utility method checking whether a provided Principal is less than or equal to the current one using the `compareTo` method
+    # Utility method checking whether a provided Principal is less than or equal to the current one using the `compare_to` method.
+    #
+    # Parameters:
+    # - other: The other Principal to compare with.
+    #
+    # Returns: `true` if the current Principal is less than or equal to the provided Principal, otherwise `false`.
     def lt_eq(other)
       cmp = compare_to(other)
       %w[lt eq].include?(cmp)
     end
 
-    # Utility method checking whether a provided Principal is greater than or equal to the current one using the `compareTo` method
+    # Utility method checking whether a provided Principal is greater than or equal to the current one using the `compare_to` method.
+    #
+    # Parameters:
+    # - other: The other Principal to compare with.
+    #
+    # Returns: `true` if the current Principal is greater than or equal to the provided Principal, otherwise `false`.
     def gt_eq(other)
       cmp = compare_to(other)
       %w[gt eq].include?(cmp)
     end
-
   end
 
   class AccountIdentifier
     attr_reader :bytes
 
+    # Initializes a new instance of the AccountIdentifier class.
+    #
+    # Parameters:
+    # - hash: The hash representing the AccountIdentifier.
     def initialize(hash)
       raise 'Invalid hash length' unless hash.length == 32
 
       @bytes = hash
     end
 
+    # Converts the AccountIdentifier to a string representation.
+    #
+    # Returns: The string representation of the AccountIdentifier.
     def to_str
       '0x' + @bytes.unpack1('H*')
     end
@@ -142,12 +188,19 @@ module IcAgent
       to_str
     end
 
+    # Generates a new AccountIdentifier from a Principal.
+    #
+    # Parameters:
+    # - principal: The Principal associated with the AccountIdentifier.
+    # - sub_account: The sub-account identifier. Defaults to 0.
+    #
+    # Returns: The AccountIdentifier instance.
     def self.generate(principal, sub_account = 0)
       sha224 = OpenSSL::Digest::SHA224.new
       sha224 << "\naccount-id"
       sha224 << principal.bytes
       format_sub_account = "%08d" % sub_account
-      sub_account = format_sub_account.chars.map {|c| c.to_i}.pack('N*')
+      sub_account = format_sub_account.chars.map { |c| c.to_i }.pack('N*')
       sha224 << sub_account
       hash = sha224.digest
       checksum = Zlib.crc32(hash) & 0xFFFFFFFF

@@ -5,6 +5,11 @@ require 'bitcoin'
 
 module IcAgent
   class Request
+    # Signs a request with an identity's signature and encodes it using CBOR.
+    #
+    # @param req [Hash] The request to be signed.
+    # @param iden [Identity] The identity used for signing.
+    # @return [Array] The request ID and the encoded signed request.
     def self.sign_request(req, iden)
       req_id = IcAgent::Utils.to_request_id(req)
       msg = IcAgent::IC_REQUEST_DOMAIN_SEPARATOR + req_id
@@ -28,6 +33,13 @@ module IcAgent
   class Agent
     attr_accessor :identity, :client, :ingress_expiry, :root_key, :nonce_factory
 
+    # Initializes a new IC agent.
+    #
+    # @param identity [Identity] The identity associated with the agent.
+    # @param client [Client] The client used for communication with the IC network.
+    # @param nonce_factory [NonceFactory] The factory for generating nonces.
+    # @param ingress_expiry [Integer] The expiration time for ingress requests.
+    # @param root_key [String] The IC root key used for verification.
     def initialize(identity, client, nonce_factory = nil, ingress_expiry = 300, root_key = IcAgent::IC_ROOT_KEY)
       @identity = identity
       @client = client
@@ -36,14 +48,25 @@ module IcAgent
       @nonce_factory = nonce_factory
     end
 
+    # Retrieves the principal associated with the agent's identity.
+    #
+    # @return [Principal] The principal associated with the agent.
     def get_principal
       @identity.sender
     end
 
+    # Calculates the expiration date for ingress requests.
+    #
+    # @return [Integer] The expiration date in nanoseconds.
     def get_expiry_date
       ((Time.now.to_i + @ingress_expiry) * 10**9).to_i
     end
 
+    # Sends a query request to a canister and decodes the response using CBOR.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param data [Hash] The data to be sent in the query request.
+    # @return [Object] The decoded response from the canister.
     def query_endpoint(canister_id, data)
       ret = @client.query(canister_id, data)
       decode_ret = nil
@@ -56,15 +79,34 @@ module IcAgent
       decode_ret
     end
 
+    # Calls a method on a canister and returns the request ID.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param request_id [String] The ID of the request.
+    # @param data [Hash] The data to be sent in the call request.
+    # @return [String] The request ID.
     def call_endpoint(canister_id, request_id, data)
       @client.call(canister_id, request_id, data)
       request_id
     end
 
+    # Reads the state of a canister.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param data [Hash] The data to be sent in the read state request.
+    # @return [Object] The response from the canister.
     def read_state_endpoint(canister_id, data)
       @client.read_state(canister_id, data)
     end
 
+    # Sends a raw query request to a canister and handles the response.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param method_name [String] The name of the method to be called.
+    # @param arg [String] The argument to be passed to the method.
+    # @param return_type [Object] The expected type of the return value.
+    # @param effective_canister_id [String] The effective canister ID (optional).
+    # @return [Object] The decoded response from the canister.
     def query_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil)
       req_canister_id = canister_id.is_a?(String) ? Principal.from_str(canister_id).bytes : canister_id.bytes
       req = {
@@ -93,6 +135,15 @@ module IcAgent
       end
     end
 
+    # Sends a raw update request to a canister and handles the response.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param method_name [String] The name of the method to be called.
+    # @param arg [String] The argument to be passed to the method.
+    # @param return_type [Object] The expected type of the return value.
+    # @param effective_canister_id [String] The effective canister ID (optional).
+    # @param kwargs [Hash] Additional keyword arguments.
+    # @return [Object] The decoded response from the canister.
     def update_raw(canister_id, method_name, arg, return_type = nil, effective_canister_id = nil, **kwargs)
       req_canister_id = canister_id.is_a?(String) ? Principal.from_str(canister_id).bytes : canister_id.bytes
       req = {
@@ -121,6 +172,11 @@ module IcAgent
       end
     end
 
+    # Sends a raw read state request to a canister and handles the response.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param paths [Array] The paths to read from the canister's state.
+    # @return [Object] The decoded response from the canister.
     def read_state_raw(canister_id, paths)
       req = {
         'request_type' => 'read_state',
@@ -144,6 +200,11 @@ module IcAgent
       CBOR.decode(d.value['certificate'])
     end
 
+    # Sends a raw read state request to a canister, verifies the response, and handles it.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param paths [Array] The paths to read from the canister's state.
+    # @return [Object] The decoded response from the canister.
     def read_state_raw_and_verify(canister_id, paths)
       req = {
         'request_type' => 'read_state',
@@ -173,6 +234,11 @@ module IcAgent
       end
     end
 
+    # Retrieves the status and certificate of a request from a canister.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param req_id [String] The ID of the request.
+    # @return [Array] The status and certificate of the request.
     def request_status_raw(canister_id, req_id)
       paths = [['request_status', req_id]]
       cert = read_state_raw(canister_id, paths)
@@ -180,6 +246,12 @@ module IcAgent
       [status, cert]
     end
 
+    # Polls a canister for the status of a request.
+    #
+    # @param canister_id [String] The ID of the target canister.
+    # @param req_id [String] The ID of the request.
+    # @param delay [Integer] The delay between each poll attempt (in seconds).
+    # @param timeout [Integer] The maximum timeout for polling.
     def poll(canister_id, req_id, delay = 1, timeout = IcAgent::DEFAULT_POLL_TIMEOUT_SECS)
       status = nil
       cert = nil
