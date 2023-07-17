@@ -14,6 +14,7 @@ module IcAgent
     # Unassigned
   end
 
+  # Base class for Principal.
   class Principal
     attr_reader :len, :bytes, :is_principal, :hex
 
@@ -28,6 +29,10 @@ module IcAgent
       Principal.new
     end
 
+
+    # self_authenticating
+    # @param [Object] pubkey
+    # @return [IcAgent::Principal]
     def self.self_authenticating(pubkey)
       # check pubkey.size for is ed25519 or secp256k1
       pubkey = [pubkey].pack('H*') if pubkey.size != 44 && pubkey.size != 88
@@ -37,10 +42,14 @@ module IcAgent
       Principal.new(bytes: hash_)
     end
 
+    # @return anonymous [IcAgent::Principal]
     def self.anonymous
       Principal.new(bytes: "\x04".b)
     end
 
+
+    # @param s, example: i3o4q-ljrhf-s4evb-ux72j-qdb6g-wzq66-73nfa-h2k3x-dw7zj-4cxkd-zae
+    # @return [IcAgent::Principal]
     def self.from_str(s)
       s1 = s.delete('-')
       pad_len = ((s1.length / 8.0).ceil * 8) - s1.length
@@ -57,6 +66,7 @@ module IcAgent
       Principal.new(bytes: [s].pack('H*'))
     end
 
+    # @return [String] example: i3o4q-ljrhf-s4evb-ux72j-qdb6g-wzq66-73nfa-h2k3x-dw7zj-4cxkd-zae
     def to_str
       checksum = Zlib.crc32(@bytes) & 0xFFFFFFFF
       b = ''
@@ -71,6 +81,8 @@ module IcAgent
       ret + s
     end
 
+    # @param [Integer] sub_account
+    # @return [IcAgent::AccountIdentifier] account_id
     def to_account_id(sub_account = 0)
       AccountIdentifier.generate(self, sub_account)
     end
@@ -79,6 +91,8 @@ module IcAgent
       to_str
     end
 
+    # @param [Object] other
+    # @return compare results
     def compare_to(other)
       (0...[self.bytes.length, other.bytes.length].min).each do |i|
         if self.bytes[i] < other.bytes[i]
