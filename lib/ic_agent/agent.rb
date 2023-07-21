@@ -176,36 +176,9 @@ module IcAgent
     #
     # @param canister_id [String] The ID of the target canister.
     # @param paths [Array] The paths to read from the canister's state.
+    # @param [TrueClass] bls_verify
     # @return [Object] The decoded response from the canister.
-    def read_state_raw(canister_id, paths)
-      req = {
-        'request_type' => 'read_state',
-        'sender' => @identity.sender.bytes,
-        'paths' => paths,
-        'ingress_expiry' => get_expiry_date
-      }
-      _, data = Request.sign_request(req, @identity)
-      ret = read_state_endpoint(canister_id, data)
-      if ret == 'Invalid path requested.'
-        raise ValueError, 'Invalid path requested!'
-      elsif ret == 'Could not parse body as read request: invalid type: byte array, expected a sequence'
-        raise ValueError, 'Could not parse body as read request: invalid type: byte array, expected a sequence'
-      end
-
-      begin
-        d = CBOR.decode(ret)
-      rescue StandardError
-        raise ValueError, "Unable to decode cbor value: #{ret}"
-      end
-      CBOR.decode(d.value['certificate'])
-    end
-
-    # Sends a raw read state request to a canister, verifies the response, and handles it.
-    #
-    # @param canister_id [String] The ID of the target canister.
-    # @param paths [Array] The paths to read from the canister's state.
-    # @return [Object] The decoded response from the canister.
-    def read_state_raw_and_verify(canister_id, paths)
+    def read_state_raw(canister_id, paths, bls_verify = true)
       req = {
         'request_type' => 'read_state',
         'sender' => @identity.sender.bytes,
@@ -227,10 +200,10 @@ module IcAgent
       end
       cert = CBOR.decode(d.value['certificate'])
 
-      if verify(cert, canister_id)
-        cert
+      if bls_verify
+        verify(cert, canister_id) ? cert : false
       else
-        false
+        cert
       end
     end
 
@@ -276,17 +249,17 @@ module IcAgent
     end
 
     def verify(cert, canister_id)
-      sig = IcAgent::Certificate.signature(cert).str2hex
+      signature_hex = IcAgent::Certificate.signature(cert).str2hex
       tree = IcAgent::Certificate.tree(cert)
       delegation = IcAgent::Certificate.delegation(cert)
       root_hash = IcAgent::Certificate.reconstruct(tree).str2hex
       msg = IcAgent::IC_STATE_ROOT_DOMAIN_SEPARATOR + root_hash
       der_key = check_delegation(delegation, canister_id, true)
       public_key_hash = extract_der(der_key).str2hex
-      byebug
-      public_key = BLS::PointG1.from_hex(public_key_hash)
 
-      BLS.verify(sig, msg, public_key)
+      public_key = BLS::PointG2.from_hex(public_key_hash)
+      signature = BLS::PointG1.from_hex(signature_hex)
+      BLS.verify(signature, msg, public_key)
     end
 
     def check_delegation(delegation, effective_canister_id, disable_range_check)
