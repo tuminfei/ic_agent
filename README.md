@@ -4,7 +4,7 @@
 
 `ic_agent` provides basic modules to interact with canisters on the DFINITY Internet Computer.
 
-[![Gem Version](https://badge.fury.io/rb/ic_agent.svg)](https://badge.fury.io/rb/ic_agent)
+[![Gem Version](https://badge.fury.io/rb/ic_agent.svg)](https://badge.fury.io/rb/ic_agent)[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 
 ## Installation
