@@ -248,6 +248,9 @@ module IcAgent
       end
     end
 
+    # Verify a BLS signature
+    # The signature must be exactly 48 bytes (compressed G1 element)
+    # The key must be exactly 96 bytes (compressed G2 element)
     def verify(cert, canister_id)
       signature_hex = IcAgent::Certificate.signature(cert).str2hex
       tree = IcAgent::Certificate.tree(cert)
