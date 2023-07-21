@@ -3,6 +3,12 @@ require 'leb128'
 
 module IcAgent
   module Utils
+    # Encodes a list of items into a binary string.
+    #
+    # Parameters:
+    # - l: The list of items to encode.
+    #
+    # Returns: The binary string representation of the encoded list.
     def self.encode_list(l)
       ret = ''
       l.each do |item|
@@ -21,7 +27,12 @@ module IcAgent
       ret
     end
 
-    # used for sort record by key
+    # Computes a hash value for sorting records by key.
+    #
+    # Parameters:
+    # - s: The key to hash.
+    #
+    # Returns: The computed hash value.
     def self.label_hash(s)
       if s =~ /(^_\d+_$)|(^_0x[0-9a-fA-F]+_$)/
         num = s[1..-2]
@@ -41,6 +52,12 @@ module IcAgent
       idl_hash(s)
     end
 
+    # Computes a hash value for an IDL string.
+    #
+    # Parameters:
+    # - s: The IDL string to hash.
+    #
+    # Returns: The computed hash value.
     def self.idl_hash(s)
       h = 0
       s.bytes.each do |c|
@@ -49,6 +66,12 @@ module IcAgent
       h
     end
 
+    # Converts a data structure into a request ID.
+    #
+    # Parameters:
+    # - d: The data structure to convert.
+    #
+    # Returns: The request ID as a binary string.
     def self.to_request_id(d)
       return nil unless d.is_a?(Hash)
 
@@ -67,9 +90,14 @@ module IcAgent
       Digest::SHA256.digest(s)
     end
 
+    # Decodes a binary blob into a string.
+    #
+    # Parameters:
+    # - blob_bytes: The binary blob to decode.
+    #
+    # Returns: The decoded string.
     def self.decode_blob(blob_bytes)
       blob_bytes.pack('C*')
     end
   end
 end
-

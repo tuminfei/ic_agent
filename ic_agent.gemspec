@@ -17,6 +17,7 @@ Gem::Specification.new do |spec|
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
   spec.metadata['changelog_uri'] = spec.homepage
+  spec.metadata['documentation_uri'] = 'https://tuminfei.github.io/ic_agent.github.com/'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -33,6 +34,7 @@ Gem::Specification.new do |spec|
   # spec.add_dependency "example-gem", "~> 1.0"
   spec.add_dependency 'base32', '~> 0.3.4'
   spec.add_dependency 'bitcoin-ruby', '~> 0.0.20'
+  spec.add_dependency 'bls12-381', '~> 0.3.0'
   spec.add_dependency 'cbor', '~> 0.5.9.6'
   spec.add_dependency 'ctf-party', '~> 2.3'
   spec.add_dependency 'ecdsa', '~> 1.2'

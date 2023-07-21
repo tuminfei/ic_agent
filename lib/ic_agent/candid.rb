@@ -174,6 +174,8 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Null
+    # check None == Null ?
     class NullClass < PrimitiveType
       def initialize()
         super
@@ -205,6 +207,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Empty, a type which has no inhabitants.
     class EmptyClass < PrimitiveType
       def initialize
         super
@@ -235,6 +238,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Bool
     class BoolClass < PrimitiveType
       def initialize
         super
@@ -275,6 +279,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Reserved
     class ReservedClass < PrimitiveType
       def initialize
         super
@@ -308,6 +313,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Text
     class TextClass < PrimitiveType
       def initialize
         super
@@ -343,6 +349,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Int
     class IntClass < PrimitiveType
       def initialize
         super
@@ -374,6 +381,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Nat
     class NatClass < PrimitiveType
       def initialize
         super
@@ -405,6 +413,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Float
     class FloatClass < PrimitiveType
       def initialize(bits)
         super()
@@ -460,6 +469,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL fixed-width Int(n)
     class FixedIntClass < PrimitiveType
       def initialize(bits)
         super()
@@ -535,6 +545,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL fixed-width Nat(n)
     class FixedNatClass < PrimitiveType
       def initialize(bits)
         super()
@@ -605,6 +616,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL principal reference
     class PrincipalClass < PrimitiveType
       def initialize
         super
@@ -658,6 +670,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Array
     class VecClass < ConstructType
       def initialize(_type)
         super()
@@ -704,6 +717,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Option
     class OptClass < ConstructType
       def initialize(_type)
         super()
@@ -756,6 +770,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Record
     class RecordClass < ConstructType
       def initialize(field)
         super()
@@ -845,6 +860,7 @@ module IcAgent
       end
     end
 
+    # Represents Tuple, a syntactic sugar for Record.
     class TupleClass < RecordClass
       attr_accessor :components
 
@@ -908,6 +924,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Variant
     class VariantClass < ConstructType
       attr_accessor :fields
 
@@ -996,6 +1013,7 @@ module IcAgent
       end
     end
 
+    # Represents a reference to an IDL type, used for defining recursive data types.
     class RecClass < ConstructType
       @@counter = 0
 
@@ -1073,6 +1091,7 @@ module IcAgent
       end
     end
 
+    #Represents an IDL Func reference
     class FuncClass < ConstructType
       attr_accessor :arg_types, :ret_types, :annotations
 
@@ -1170,6 +1189,7 @@ module IcAgent
       end
     end
 
+    # Represents an IDL Service reference
     class ServiceClass < ConstructType
       def initialize(field)
         super()
@@ -1344,6 +1364,7 @@ module IcAgent
       end
     end
 
+    # through Pipe to decode bytes
     def self.leb128u_decode(pipe)
       res = StringIO.new
       loop do
@@ -1575,8 +1596,8 @@ module IcAgent
       return table[t]
     end
 
-    # params = [{type, value}]
-    # data = b'DIDL' + len(params) + encoded types + encoded values
+    # @param [Object] params = [{type, value}]
+    # @return data = b'DIDL' + len(params) + encoded types + encoded values
     def self.encode(params)
       arg_types = []
       args = []
@@ -1617,7 +1638,8 @@ module IcAgent
       return pre + table + length + typs + vals
     end
 
-    # decode a bytes value
+    # @param [Object] data: decode a bytes value
+    # @param [nil] ret_types
     # def decode(retTypes, data):
     def self.decode(data, ret_types = nil)
       pipe = Pipe.new(data)
@@ -1664,8 +1686,7 @@ module IcAgent
                          'value' => t.decode_value(pipe, types[i])
                        })
       end
-
-      return outputs
+      outputs
     end
   end
 end
