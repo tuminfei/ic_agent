@@ -265,6 +265,7 @@ module IcAgent
       BLS.verify(signature, msg, public_key)
     end
 
+    # Check the delegation and return the corresponding root key.
     def check_delegation(delegation, effective_canister_id, disable_range_check)
       return @root_key unless delegation
 
@@ -306,6 +307,7 @@ module IcAgent
       false
     end
 
+    # Extract the BLS public key from the DER buffer.
     def extract_der(der_buf)
       bls_der_prefix = OpenSSL::BN.from_hex(IcAgent::BLS_DER_PREFIX).to_s(2)
       expected_length = bls_der_prefix.bytesize + IcAgent::BLS_KEY_LENGTH

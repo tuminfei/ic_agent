@@ -2,6 +2,12 @@ require 'rubytree'
 
 module IcAgent
   class Canister
+    # Constructor for the Canister class.
+    #
+    # Parameters:
+    # - agent: An instance of the agent.
+    # - canister_id: ID of the canister.
+    # - candid: (Optional) The Candid description of the canister. If not provided, it will be queried.
     def initialize(agent, canister_id, candid=nil)
       @agent = agent
       @canister_id = canister_id
@@ -17,6 +23,7 @@ module IcAgent
         raise BaseException, "canister #{@canister_id} has no __get_candid_interface_tmp_hack method."
       end
 
+      # Parse the Candid description to extract information about service methods.
       parser = IcAgent::Ast::Parser.new
       parser.parse(@candid)
 

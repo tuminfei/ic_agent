@@ -261,6 +261,11 @@ module IcAgent
 
       attr_accessor :identity, :client, :agent, :canister
 
+      # Constructor for the CyclesWallet class.
+      #
+      # Parameters:
+      # - iden: (Optional) An instance of the Identity class.
+      # - wallet_id: The ID of the CyclesWallet.
       def initialize(iden = nil, wallet_id)
         @identity = iden.nil? ? IcAgent::Identity.new : iden
         @client = IcAgent::Client.new
