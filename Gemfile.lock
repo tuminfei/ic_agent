@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ic_agent (0.2.0)
+    ic_agent (0.2.1)
       base32 (~> 0.3.4)
       bitcoin-ruby (~> 0.0.20)
       bls12-381 (~> 0.3.0)
