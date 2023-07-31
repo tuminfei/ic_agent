@@ -355,6 +355,10 @@ module IcAgent
 
       attr_accessor :identity, :client, :agent, :canister
 
+      # Constructor for the Governance class.
+      #
+      # Parameters:
+      # - iden: (Optional) An instance of the Identity class.
       def initialize(iden = nil)
         @identity = iden.nil? ? IcAgent::Identity.new : iden
         @client = IcAgent::Client.new

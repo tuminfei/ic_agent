@@ -2,6 +2,8 @@ require 'treetop'
 
 module IcAgent
   module Ast
+    # The StatementParser class provides methods to parse data and generate an Abstract Syntax Tree (AST)
+    # for nested types based on the specified grammar.
     class StatementParser
       attr_accessor :parser, :tree, :source_tree
 
@@ -21,10 +23,19 @@ module IcAgent
       REFER_TYPE_KEYS = ['record', 'variant']
 
       def initialize
+        # Loads the Treetop grammar from the specified file.
         Treetop.load(File.expand_path(File.join(File.dirname(__FILE__), 'nested_type_grammar.treetop')))
         @parser = TypeGrammarParser.new
       end
 
+      # Parses the input data and generates the Abstract Syntax Tree (AST) for nested types based on the grammar.
+      #
+      # Parameters:
+      # - data: The input data to be parsed.
+      # - return_type: The desired format for the parsed AST (:string by default).
+      #
+      # Returns:
+      # - The generated AST in the specified format.
       def parse(data, return_type = :string)
         tree = @parser.parse(data)
         raise Exception, "Parse error at offset: #{@parser.index} #{@parser.failure_reason}" if tree.nil?
@@ -38,6 +49,7 @@ module IcAgent
         tree
       end
 
+      # Cleans up the AST tree by removing unnecessary nodes.
       def clean_tree(root_node)
         return if root_node.elements.nil?
 
@@ -45,6 +57,7 @@ module IcAgent
         root_node.elements.each { |node| self.clean_tree(node) }
       end
 
+      # Generates the source tree from the AST tree.
       # @param [Object] root_node
       # @param [nil] tree_root_node
       # @param [nil] tree_current_node
@@ -87,10 +100,12 @@ module IcAgent
         self.source_tree = tree_root_node
       end
 
+      # Returns the root node of the AST statement.
       def ic_statement_root
         tree.elements[0]
       end
 
+      # Returns the child nodes of the AST statement.
       def ic_statement_childs
         if tree.elements[0] && tree.elements[0].elements[0].elements[0]
           tree.elements[0].elements[0].elements[0].elements

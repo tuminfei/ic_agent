@@ -5,24 +5,30 @@ module IcAgent
     class Assembler
       TYPE_MAPPING = {}
 
+      # Builds a single Candid type from a given child type.
       def self.build_single_type(child_type)
         IcAgent::Candid::BaseTypes.send(child_type)
       end
 
+
+      # Builds a Candid blob type.
       def self.build_blob
         IcAgent::Candid::BaseTypes.vec(IcAgent::Candid::BaseTypes.nat8)
       end
 
+      # Builds a Candid optional type from a given child type.
       def self.build_opt(child_type, key_types = {})
         child_type = key_types[child_type].nil? ? build_type(child_type, key_types) : key_types[child_type]
         IcAgent::Candid::BaseTypes.opt(child_type)
       end
 
+      # Builds a Candid vector type from a given child type.
       def self.build_vec(child_type, key_types = {})
         child_type = key_types[child_type].nil? ? build_type(child_type, key_types) : key_types[child_type]
         IcAgent::Candid::BaseTypes.vec(child_type)
       end
 
+      # Builds a Candid record type from a given hash of field names and types.
       def self.build_record(child_hash, multi_types = {}, key_types = {})
         child_types = {}
         child_hash.each_key do |key|
@@ -38,6 +44,7 @@ module IcAgent
         IcAgent::Candid::BaseTypes.record(child_types)
       end
 
+      # Builds a Candid variant type from a given hash of field names and types.
       def self.build_variant(child_hash, multi_types = {}, key_types = {})
         child_types = {}
         child_hash.each_key do |key|
@@ -53,6 +60,7 @@ module IcAgent
         IcAgent::Candid::BaseTypes.variant(child_types)
       end
 
+      # Builds a Candid type based on the given type string.
       def self.build_type(type_str, key_types = {}, multi_types = {})
         opt_code = get_opt_code(type_str)
 
@@ -91,6 +99,7 @@ module IcAgent
         end
       end
 
+      # Replaces the last occurrence of a pattern in a string with the given replacement.
       def self.replace_last_occurrence(string, pattern, replacement)
         last_index = string.rindex(pattern)
         return string unless last_index
@@ -99,18 +108,21 @@ module IcAgent
         string
       end
 
+      # Extracts the content of a Candid record type from the type string.
       def self.get_record_content(record_str)
         record_str = record_str.sub('record', '').sub('{', '')
         record_str = replace_last_occurrence(record_str, '}', '')
         record_str.strip
       end
 
+      # Extracts the content of a Candid variant type from the type string.
       def self.get_variant_content(variant_str)
         variant_str = variant_str.sub('variant', '').sub('{', '')
         variant_str = replace_last_occurrence(variant_str, '}', '')
         variant_str.strip
       end
 
+      # Extracts the key-value pairs from a Candid record item string.
       def self.get_record_key_value(item_str, index_str, key_index = 0)
         first_index = item_str.index(index_str)
         if first_index
@@ -123,16 +135,19 @@ module IcAgent
         return key, value
       end
 
+      # Extracts the Candid code (e.g., "record", "variant", "opt", etc.) from the type string.
       def self.get_opt_code(item_str)
         opt_code = item_str.strip
         opt_code.split(' ')[0]
       end
 
+      # Extracts the child Candid code from the type string.
       def self.get_child_code(item_str, index_str)
         first_index = item_str.index(index_str)
         item_str[(first_index + index_str.size)..].strip
       end
 
+      # Replaces occurrences of Candid record and variant types with unique type names.
       def self.replace_multi_type(type_str)
         replaced_hash = {}
         modified_str = type_str.gsub(/record\s*{[^{}]*}/) do |match|
@@ -152,6 +167,7 @@ module IcAgent
         return modified_str, replaced_hash
       end
 
+      # Gets the refer types used in the type string.
       def self.get_params_refer_values(type_str)
         parser = IcAgent::Ast::StatementParser.new
         parser.parse(type_str)
@@ -159,6 +175,7 @@ module IcAgent
         refer_type
       end
 
+      # Recovers the original type string from the multi_types hash.
       def self.recover_type(type_str, multi_types)
         multi_types.each_key do |key|
           type_str = type_str.gsub(key, multi_types[key])
