@@ -47,12 +47,12 @@ module IcAgent
     #
     # Parameters:
     # - mnemonic: The seed phrase (mnemonic) used to generate the identity.
+    # - key_type: The key type of the identity. Defaults to 'ed25519'.
     #
     # Returns: The Identity instance.
-    def self.from_seed(mnemonic)
+    def self.from_seed(mnemonic, key_type = 'ed25519')
       seed = Bitcoin::Trezor::Mnemonic.to_seed(mnemonic)
       privkey = seed[0..63]
-      key_type = 'ed25519'
       Identity.new(privkey = privkey, type = key_type)
     end
 
